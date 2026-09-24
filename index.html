@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v3.4</title>
+<title>Kana + Vocab Trainer v3.5</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -80,6 +80,11 @@ button:disabled{opacity:.4;cursor:default}
 .lesson h3{margin:0 0 6px;font-size:16px;color:var(--gold)}
 .lesson .ex{margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
 .lesson .ex .ja{color:var(--gold);font-size:18px}
+details.hintbox{margin:6px auto;max-width:520px}
+details.hintbox summary{cursor:pointer;color:var(--ink2);font-size:13px;list-style:none;text-align:center;padding:4px 10px;border:1px dashed var(--line);border-radius:999px;display:inline-block}
+details.hintbox summary::-webkit-details-marker{display:none}
+details.hintbox[open] summary{border-color:var(--gold);color:var(--gold)}
+details.hintbox .inner{margin-top:6px}
 .qbox{font-size:34px;text-align:center;color:var(--gold);margin:10px 0 4px;line-height:1.3}
 .ans{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
 .ans .a{font-size:24px;color:var(--gold)} .ans .ar{color:var(--ink2);font-size:14px} .ans .ae{font-size:15px}
@@ -108,7 +113,7 @@ td.r{color:var(--ink2)}
 </head>
 <body>
 <header>
-  <h1>Kana + Vocab Trainer <span>v3.4</span></h1>
+  <h1>Kana + Vocab Trainer <span>v3.5</span></h1>
   <div class="stat"><button class="btn small" id="sndBtn">Sound: on</button> Today: <b id="sOk">0</b> right / <b id="sBad">0</b> wrong | streak <b id="sStreak">0</b></div>
 </header>
 <nav id="nav">
@@ -1164,7 +1169,7 @@ function lessonRun(c){
     c.querySelector('#redo').onclick=()=>startLesson(L,S.si);const nb=c.querySelector('#nextBtn');if(nb)nb.onclick=()=>nextSeg?startLesson(L,S.si+1):startLesson(nextL,0);c.querySelector('#back').onclick=()=>{store.lesson=null;render()};return}
   const it=S.items[S.i];const [pre,suf,label]=it.ctx;const full=pre+it.frame+suf;
   c.innerHTML=crumbs+`<div class="hint">exercise ${S.i+1} of 10 · ${S.ok} right</div><div class="bar"><i style="width:${S.i*10}%"></i></div>
-   <div class="formq"><div class="v ja" style="font-size:30px">${full}</div><div class="t">${it.verb} <span class="hint">(${toRomaji(it.verb)} = ${esc(it.en)})</span> → ${label}</div></div>
+   <div class="formq"><div class="v ja" style="font-size:30px">${full}</div><div class="t">${it.verb} → ${label}</div>${hintbox(`<div class="hint">${toRomaji(it.verb)} = ${esc(it.en)}</div>`)}</div>
    <div class="choices">${it.opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button><button class="btn small" id="ruleBtn">Rule again</button></div><div id="ruleWrap"></div>`;
   c.querySelector('#ruleBtn').onclick=()=>{c.querySelector('#ruleWrap').innerHTML=`<div class="lesson">${esc(seg.text)}</div>`};
   choiceFlow(c,it.opts,b=>b.dataset.r===it.right,good=>{if(good)S.ok++;else S.miss.push(it);const done=pre+it.frame.replace('＿＿',it.right)+suf;
@@ -1473,7 +1478,7 @@ function vcRun(c){
     c.querySelector('#redo').onclick=()=>vcStart(S.vi,S.si);const nb=c.querySelector('#nextBtn');if(nb)nb.onclick=()=>nextSeg?vcStart(S.vi,S.si+1):vcStart(S.vi+1,0);c.querySelector('#back').onclick=()=>{store.vc=null;render()};return}
   const it=S.items[S.i];
   c.innerHTML=crumbs+`<div class="hint">sentence ${S.i+1} of 10 · ${S.ok} right</div><div class="bar"><i style="width:${S.i*10}%"></i></div>
-   <div class="formq"><div class="meaning" style="font-size:22px">${esc(it.en)}</div><div class="v ja" style="font-size:30px;margin-top:6px">${it.jp}</div><div class="t">${v[0]} → ${FORMS[it.k][0]}</div></div>
+   <div class="formq"><div class="v ja" style="font-size:30px">${it.jp}</div><div class="t">${v[0]} → ${FORMS[it.k][0]}</div>${hintbox(`<div class="meaning" style="font-size:20px">${esc(it.en)}</div><div class="hint">${v[0]} = ${esc(v[2])} · ${esc(FORMS[it.k][1])}</div>`)}</div>
    <div class="choices">${it.opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button><button class="btn small" id="ruleBtn">Rule again</button></div><div id="ruleWrap"></div>`;
   c.querySelector('#ruleBtn').onclick=()=>{c.querySelector('#ruleWrap').innerHTML=`<div class="lesson">${esc(ruleFor(v,it.k))}</div>`};
   choiceFlow(c,it.opts,b=>b.dataset.r===it.right,good=>{if(good)S.ok++;else S.miss.push(it);const done=it.jp.replace('＿＿',it.right);
@@ -2020,6 +2025,7 @@ const GLOSS3={'はじめまして':'nice to meet you','よろしく':'nice to me
 Object.assign(GLOSS,GLOSS3);
 
 function toRomaji(s){return romajiAny(s)}
+function hintbox(inner,label){return `<details class="hintbox"><summary>${label||'show meaning'}</summary><div class="inner">${inner}</div></details>`}
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
   const d=document.createElement('div');d.className='card';
@@ -2069,7 +2075,7 @@ function forms(m){
   if(store.formMode==='adj'){
     const a=pick(ADJ,x=>'a:'+x[0],lastId);const f=conjA(a);const keys=Object.keys(AFORMS);const k=keys[Math.floor(Math.random()*keys.length)];const id='a:'+a[0]+':'+k;lastId='a:'+a[0];
     const right=f[k];const others=shuffle(keys.filter(x=>f[x]!==right)).slice(0,3).map(x=>f[x]);const opts=shuffle([right,...others]);
-    c.innerHTML=`<div class="formq"><div class="v ja">${a[0]}</div><div class="hint">${toRomaji(a[0])} = ${a[2]} <span class="reg">${a[1]==='i'?'い-adjective':'な-adjective'}</span></div><div class="t">make it: ${AFORMS[k][0]}</div><div class="hint">${esc(AFORMS[k][1])}</div></div>${lessonBlock(k,true)}${itemStat(id)}
+    c.innerHTML=`<div class="formq"><div class="v ja">${a[0]}</div><div class="t">make it: ${AFORMS[k][0]}</div>${hintbox(`<div class="hint">${toRomaji(a[0])} = ${a[2]} <span class="reg">${a[1]==='i'?'い-adjective':'な-adjective'}</span></div><div class="hint">${esc(AFORMS[k][1])}</div>`)}</div>${lessonBlock(k,true)}${itemStat(id)}
      <div class="choices">${opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
     wireLesson(c,k,true);choiceFlow(c,opts,b=>b.dataset.r===right,good=>finish(c,good,(good?'Correct. ':`No. ${AFORMS[k][0]} of ${a[0]} is `)+`<span class="ja">${right}</span> (${toRomaji(right)})<div class="note"><b>All forms of ${a[0]}:</b> ${Object.keys(f).map(x=>`<span class="ja">${f[x]}</span> <span class="hint">${AFORMS[x][0]}</span>`).join(' · ')}</div>`,id,right));
     return;
@@ -2078,13 +2084,13 @@ function forms(m){
   if(store.formMode==='name'){
     const k=avail[Math.floor(Math.random()*avail.length)];const id='fn:'+v[0]+':'+k;
     const others=shuffle(avail.filter(x=>x!==k&&f[x]!==f[k])).slice(0,3);const opts=shuffle([k,...others]);
-    c.innerHTML=`<div class="formq"><div class="v ja">${f[k]}</div><div class="hint">${toRomaji(f[k])}, from ${v[0]} = ${v[2]}</div><div class="t">which form is this?</div></div>${itemStat(id)}
+    c.innerHTML=`<div class="formq"><div class="v ja">${f[k]}</div><div class="t">which form is this?</div>${hintbox(`<div class="hint">${toRomaji(f[k])}, from ${v[0]} = ${v[2]}</div>`)}</div>${itemStat(id)}
      <div class="choices">${opts.map(o=>`<button class="opt" data-r="${o}" style="font-size:16px">${FORMS[o][0]}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
     choiceFlow(c,opts,b=>b.dataset.r===k,good=>finish(c,good,(good?'Correct. ':'No. ')+`<span class="ja">${f[k]}</span> is the <b>${FORMS[k][0]}</b> form of ${v[0]}: ${esc(FORMS[k][1])}${v[3]?`<div class="note">${esc(v[3])}</div>`:''}${lessonHtml(k,false)}`,id,f[k]));
     return;
   }
   const k=avail[Math.floor(Math.random()*avail.length)];const id='f:'+v[0]+':'+k;const right=f[k];
-  const head=`<div class="formq"><div class="v ja">${v[0]}</div><div class="hint">${toRomaji(v[0])} = ${v[2]} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="t">make it: ${FORMS[k][0]}</div><div class="meaning" style="font-size:17px">${esc(formMeaning(v[2],k))}</div><div class="hint">${esc(FORMS[k][1])}</div></div>${lessonBlock(k,false)}${itemStat(id)}`;
+  const head=`<div class="formq"><div class="v ja">${v[0]}</div><div class="t">make it: ${FORMS[k][0]}</div>${hintbox(`<div class="hint">${toRomaji(v[0])} = ${v[2]} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="meaning" style="font-size:17px">${esc(formMeaning(v[2],k))}</div><div class="hint">${esc(FORMS[k][1])}</div>`)}</div>${lessonBlock(k,false)}${itemStat(id)}`;
   const res=good=>(good?'Correct. ':`No. ${FORMS[k][0]} of ${v[0]} is `)+`<span class="ja">${right}</span> (${toRomaji(right)})${v[3]?`<div class="note">${esc(v[3])}</div>`:''}<div class="note"><b>Nearby forms:</b> ${['dict','masu','nai','ta','te','teru'].filter(x=>f[x]).map(x=>`<span class="ja">${f[x]}</span> <span class="hint">${FORMS[x][0]}</span>`).join(' · ')}</div>`;
   if(store.formMode==='type'){
     c.innerHTML=head+`<input type="text" id="inp" placeholder="type the romaji" autocomplete="off" autocapitalize="off"><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button><button class="btn" id="skip">Reveal</button></div>`;
