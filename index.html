@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v3.3</title>
+<title>Kana + Vocab Trainer v3.4</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -108,7 +108,7 @@ td.r{color:var(--ink2)}
 </head>
 <body>
 <header>
-  <h1>Kana + Vocab Trainer <span>v3.3</span></h1>
+  <h1>Kana + Vocab Trainer <span>v3.4</span></h1>
   <div class="stat"><button class="btn small" id="sndBtn">Sound: on</button> Today: <b id="sOk">0</b> right / <b id="sBad">0</b> wrong | streak <b id="sStreak">0</b></div>
 </header>
 <nav id="nav">
@@ -1132,7 +1132,7 @@ function segmentsFor(L){
     const col=SLIDE[k];const extra=col==='a'?' Verbs ending in う slide to わ, not あ: あう → '+conj(['あう','g'])[k]+'.':'';
     segs.push({title:'u-verbs',text:`u-verbs (godan): the last kana slides to the ${COLNAME[col]}, then add ${conj(['のむ','g'])[k].slice(2)}.${extra} Examples: ${exs(god)}.`,pool:god.filter(v=>conj(v)[k])});
   }else{segs.push({title:'u-verbs',text:`u-verbs end in an u-sound kana. Spot them: ${exs(god)}.`,pool:god})}
-  if(irr.length)segs.push({title:'irregulars',text:`Memorize these: ${irr.map(v=>`${v[0]} → ${conj(v)[k]}`).join(', ')}.${TE_FAMILY.includes(k)?' いく is a u-verb that breaks the く rule.':''}${irr.some(v=>v[0]==='ある')?' ある has no あら- form; the negative is just ない.':''}`,pool:irr});
+  if(irr.length)segs.push({title:'irregulars and exceptions',text:`Memorize these: ${irr.map(v=>`${v[0]} → ${conj(v)[k]}`).join(', ')}.${TE_FAMILY.includes(k)?' する and くる are the only true irregulars; いく is a u-verb with one exception in this form.':''}${irr.some(v=>v[0]==='ある')?' ある has no あら- form; the negative is just ない.':''}`,pool:irr});
   segs.push({title:'all together',text:`Every group mixed. ${Ls.how.join(' · ')}`,pool:VERBS.filter(v=>conj(v)[k])});
   segs.push({title:'Why and when',text:Ls.why,pool:VERBS.filter(v=>conj(v)[k]),why:true});
   return segs;
@@ -1408,20 +1408,27 @@ const VC_EXTRA=v=>{const f=conj(v);const te=f.te;return {teiru:te+'いる',teima
 VERBALL.forEach(v=>{if(!VERBS.some(x=>x[0]===v[0]&&x[1]===v[1]))VERBS.push([v[0],v[1],v[2],'']);if(!VFRAME[v[0]])VFRAME[v[0]]=v[5][0][0]+' ＿＿'});
 const VCOURSE=VERBALL;
 const VC_PER=24;
-const VC_GROUP=v=>{const d=v[0],g=v[1];if(g==='s'||g==='k'||d==='ある'||d.endsWith('いく'))return 0;if(g==='i')return 1;return 2};
-const VC_GROUPLABEL=['Irregular and special (する, くる, ある, いく and their compounds)','ru-verbs (ichidan): chop る, add the ending','u-verbs (godan): the last kana slides along its row'];
+const VC_GROUP=v=>{const g=v[1];if(g==='s'||g==='k')return 0;if(g==='i')return 1;return 2};
+const VC_GROUPLABEL=['Irregular','ru-verbs','u-verbs'];
+const VC_GROUPDESC=['Only two verbs in Japanese are irregular: する and くる. Every compound built on them (べんきょうする, もってくる) follows the same two patterns.','ichidan: chop the る, glue on the ending. Same rule for every one of them.','godan: the last kana slides along its row. Two things to know: いく is a normal u-verb whose only quirk is the te-form (いって, not いいて), and ある has no あら- form (negative is just ない). Verbs tagged in red end in -eru / -iru but are still u-verbs.'];
 const VC_TRAP=v=>v[1]==='g'&&/(える|いる)$/.test(v[0]);
+const VC_TAG=v=>v[0].endsWith('いく')?'te-form exception: いって':v[0]==='ある'?'negative is ない':VC_TRAP(v)?'looks like a ru-verb, is not':'';
 function vcMatch(v,q){q=q.trim().toLowerCase();if(!q)return true;return v[0].includes(q)||toRomaji(v[0]).includes(q)||v[2].toLowerCase().includes(q)||v[3].toLowerCase().includes(q)}
 function vcHome(c){
-  const q=store.vcQuery||'';const list=VCOURSE.map((v,i)=>({v,i})).filter(o=>vcMatch(o.v,q)).sort((a,b)=>VC_GROUP(a.v)-VC_GROUP(b.v)||a.i-b.i);const pages=Math.max(1,Math.ceil(list.length/VC_PER));if(store.vcPage>=pages)store.vcPage=pages-1;const page=list.slice(store.vcPage*VC_PER,(store.vcPage+1)*VC_PER);
-  c.innerHTML=`<h2>Verb course: ${VCOURSE.length} verbs, every form</h2><p>Pick a verb. You go through its forms one small step at a time: the rule for this verb, three example sentences in that form, then ten sentences to complete with the English shown. Then the next form, then the next verb.</p>
-   <p class="hint">Ordered by group: irregulars first, then ru-verbs, then u-verbs. Learn する, くる, いく and a couple of ru-verbs before the u-verbs; the u-verb rule is the same for all 150 of them.</p><p><input class="plain" id="vq" placeholder="search: kana, romaji or English (e.g. のむ, nomu, drink)" value="${esc(q)}" style="width:100%;font-size:16px"></p>
-   <div class="hint">${list.length} verbs · page ${store.vcPage+1} of ${pages}</div>
-   <table class="ftable">${page.map(({v,i},pi)=>{const segs=vcSegsFor(v);const done=segs.filter((s,si)=>(PROG[vcId(i,si)]||{}).best>=8).length;const gr=VC_GROUP(v);const head=(pi===0||VC_GROUP(page[pi-1].v)!==gr)?`<tr><td colspan="4" style="color:var(--gold);padding-top:12px"><b>${VC_GROUPLABEL[gr]}</b></td></tr>`:'';return head+`<tr data-i="${i}" style="cursor:pointer"><td class="fl">${i+1}</td><td class="fj ja">${v[0]}</td><td class="fl">${toRomaji(v[0])} = ${v[2]} <span class="reg">${GROUPLABEL[v[1]]}</span>${VC_TRAP(v)?' <span class="reg warn">looks like a ru-verb, is not</span>':''}</td><td style="white-space:nowrap">${done===segs.length?'<span style="color:var(--ok)">done</span>':done?`<span class="warn">${done} / ${segs.length}</span>`:'<span class="hint">not started</span>'}</td></tr>`}).join('')}</table>
-   <div class="row"><button class="btn" id="pprev" ${store.vcPage===0?'disabled':''}>Previous</button><span class="hint">${store.vcPage+1} / ${pages}</span><button class="btn" id="pnext" ${store.vcPage>=pages-1?'disabled':''}>Next page</button></div>`;
-  const inp=c.querySelector('#vq');inp.oninput=()=>{store.vcQuery=inp.value;store.vcPage=0;const pos=inp.selectionStart;render();const n=document.querySelector('#vq');if(n){n.focus();n.setSelectionRange(pos,pos)}};
-  c.querySelector('#pprev').onclick=()=>{store.vcPage--;render()};c.querySelector('#pnext').onclick=()=>{store.vcPage++;render()};
-  c.onclick=e=>{const r=e.target.closest('tr[data-i]');if(!r)return;const vi=+r.dataset.i;const segs=vcSegsFor(VCOURSE[vi]);let si=segs.findIndex((s,j)=>!((PROG[vcId(vi,j)]||{}).best>=8));vcStart(vi,si<0?0:si)};
+  if(store.vcTab==null)store.vcTab=0;if(!store.vcPages)store.vcPages=[0,0,0];const tab=store.vcTab;
+  const q=store.vcQuery||'';const inTab=VCOURSE.map((v,i)=>({v,i})).filter(o=>VC_GROUP(o.v)===tab);const list=inTab.filter(o=>vcMatch(o.v,q));
+  const pages=Math.max(1,Math.ceil(list.length/VC_PER));if(store.vcPages[tab]>=pages)store.vcPages[tab]=pages-1;const pg0=store.vcPages[tab];const page=list.slice(pg0*VC_PER,(pg0+1)*VC_PER);
+  const counts=[0,1,2].map(g=>VCOURSE.filter(v=>VC_GROUP(v)===g).length);
+  c.innerHTML=`<h2>Verb course: ${VCOURSE.length} verbs, every form</h2><p>Pick a verb. Each form comes as a small step: the rule for this verb, three example sentences in that form, then ten sentences to complete with the English shown.</p>
+   <div class="row" style="margin-bottom:6px">${VC_GROUPLABEL.map((l,g)=>`<span class="chip ${tab===g?'on':''}" data-tab="${g}" style="font-size:15px;padding:6px 14px">${l} <span class="hint">${counts[g]}</span></span>`).join('')}</div>
+   <p class="hint">${VC_GROUPDESC[tab]}</p>
+   <p><input class="plain" id="vq" placeholder="search this tab: kana, romaji or English" value="${esc(q)}" style="width:100%;font-size:16px"></p>
+   <div class="hint">${list.length} verbs · page ${pg0+1} of ${pages}</div>
+   <table class="ftable">${page.map(({v,i})=>{const n=inTab.findIndex(o=>o.i===i)+1;const segs=vcSegsFor(v);const done=segs.filter((s,si)=>(PROG[vcId(i,si)]||{}).best>=8).length;const tag=VC_TAG(v);return `<tr data-i="${i}" style="cursor:pointer"><td class="fl">${n}</td><td class="fj ja">${v[0]}</td><td class="fl">${toRomaji(v[0])} = ${v[2]}${tag?` <span class="reg warn">${tag}</span>`:''}</td><td style="white-space:nowrap">${done===segs.length?'<span style="color:var(--ok)">done</span>':done?`<span class="warn">${done} / ${segs.length}</span>`:'<span class="hint">not started</span>'}</td></tr>`}).join('')}</table>
+   <div class="row"><button class="btn" id="pprev" ${pg0===0?'disabled':''}>Previous</button><span class="hint">${pg0+1} / ${pages}</span><button class="btn" id="pnext" ${pg0>=pages-1?'disabled':''}>Next page</button></div>`;
+  const inp=c.querySelector('#vq');inp.oninput=()=>{store.vcQuery=inp.value;store.vcPages[tab]=0;const pos=inp.selectionStart;render();const n=document.querySelector('#vq');if(n){n.focus();n.setSelectionRange(pos,pos)}};
+  c.querySelector('#pprev').onclick=()=>{store.vcPages[tab]--;render()};c.querySelector('#pnext').onclick=()=>{store.vcPages[tab]++;render()};
+  c.onclick=e=>{const t=e.target.closest('[data-tab]');if(t){store.vcTab=+t.dataset.tab;render();return}const r=e.target.closest('tr[data-i]');if(!r)return;const vi=+r.dataset.i;const segs=vcSegsFor(VCOURSE[vi]);let si=segs.findIndex((s,j)=>!((PROG[vcId(vi,j)]||{}).best>=8));vcStart(vi,si<0?0:si)};
 }
 function vcExamples(v,k){const f=conj(v);const [pre,enT]=FORM_EN[k];return v[5].map(fr=>{const jp=pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ');return `<div><span class="ja" data-say="${jp.replace(/ /g,'')}" style="cursor:pointer;color:var(--gold);font-size:18px">${jp}</span> <span class="hint">${romajiAny(jp)}</span><div class="hint">${esc(en)}</div></div>`}).join('')}
 function vcTeiruNote(v,k){if(k!=='teru'&&k!=='teta')return '';const x=VC_EXTRA(v);const f=conj(v);const [pre]=FORM_EN[k];const fr=v[5][0];const row=(form,label)=>`<tr data-say="${(pre+fr[0]+form).replace(/ /g,'')}"><td class="fj ja" style="font-size:18px">${pre}${fr[0]} ${form}。</td><td class="fl">${romajiAny(pre+fr[0]+' '+form)}</td><td class="fl">${label}</td></tr>`;
@@ -1435,7 +1442,7 @@ function ruleFor(v,k){const [d,g]=v;const f=conj(v)[k];const name=FORMS[k][0];
   if(g==='s'||g==='k')return `${name}: ${d} is ${d.slice(0,-2)?d.slice(0,-2)+' + '+d.slice(-2)+', and ':''}${d.slice(-2)} is irregular, just memorize it: ${d} → ${f}.`;
   if(g==='i')return `${name}: ${d} is a ru-verb. Chop the る, add ${f.slice(d.length-1)||'nothing'}: ${d} → ${f}.`;
   if(d==='ある'&&['nai','nakatta','nakya'].includes(k))return `${name}: ある is special. There is no あら- form; it just becomes ${f}.`;
-  if(TE_FAMILY.includes(k)){const cls=TE_CLASS(v);const last=d.slice(-1);const desc={tte:`${last} is in the う/つ/る class, so it becomes っ`,nde:`${last} is in the む/ぶ/ぬ class, so it becomes ん and て turns into で`,ite:`${last} becomes い`,shite:`す becomes し`,x:`いく breaks the く rule`}[cls];return `${name}: ${d} is a u-verb. ${desc}: ${d} → ${f}.`}
+  if(TE_FAMILY.includes(k)){const cls=TE_CLASS(v);const last=d.slice(-1);const desc={tte:`${last} is in the う/つ/る class, so it becomes っ`,nde:`${last} is in the む/ぶ/ぬ class, so it becomes ん and て turns into で`,ite:`${last} becomes い`,shite:`す becomes し`,x:`いく is a normal u-verb, but its te-form is the one exception in the く row: っ instead of い`}[cls];return `${name}: ${d} is a u-verb. ${desc}: ${d} → ${f}.`}
   if(k==='dict')return `${name}: ${d} ends in ${d.slice(-1)}, an u-sound, so it is a u-verb.${['かえる','はいる','はしる','しる','きる','いる'].some(t=>d.endsWith(t)&&g==='g')?' It looks like a ru-verb but is not.':''}`;
   const col=SLIDE[k];const last=d.slice(-1);const st=d.slice(0,-1);const slid=f.slice(st.length,st.length+1);
   return `${name}: ${d} is a u-verb. The last kana ${last} slides to ${slid} (${col}-column), then add ${f.slice(st.length+1)}: ${d} → ${f}.`}
@@ -2049,7 +2056,7 @@ function forms(m){
     c.innerHTML=`<h2>The three verb groups</h2>
     <p><b>u-verbs (godan)</b>: のむ, かく, はなす, あう. The last kana slides along its row: のむ → のま (ない) / のみ (ます) / のめ (can) / のも (let's). The te-form depends on the last kana: う つ る → って, む ぶ ぬ → んで, く → いて, ぐ → いで, す → して.</p>
     <p><b>ru-verbs (ichidan)</b>: たべる, みる, ねる, おきる. Chop the る, glue anything on: たべ + ます / ない / た / て / られる / よう.</p>
-    <p><b>Irregular</b>: する and くる. Just two, memorize them. する → します / しない / した / して. くる → きます / こない / きた / きて.</p>
+    <p><b>Irregular</b>: する and くる. Just two, memorize them. する → します / しない / した / して. くる → きます / こない / きた / きて. いく is not irregular; it is a u-verb with one exception (te-form いって).</p>
     <p class="warn">Traps: かえる, はいる, はしる, しる end in -eru / -iru but are u-verbs. かえって, not かえて.</p>
     <h2 style="margin-top:14px">What the forms are for</h2>
     <table class="ftable">${FORM_KEYS.map(k=>`<tr><td><b>${FORMS[k][0]}</b></td><td class="fl">${esc(FORMS[k][1])}</td></tr>`).join('')}</table>
