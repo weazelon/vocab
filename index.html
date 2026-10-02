@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Karla:wght@400;600&display=swap" rel="stylesheet">
-<title>Kana + Vocab Trainer v4.1</title>
+<title>Kana + Vocab Trainer v4.2</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -151,10 +150,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v4.1 visual pass: ink, paper, motion (no libraries) ---- */
-html,body{font-family:"Karla","Segoe UI",system-ui,sans-serif}
-.ja,.brandk,nav button .ico,.hubbtn .hk,h1,h2{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}
-.pagehead h1{font-family:"Shippori Mincho",serif;font-weight:700;font-size:26px;letter-spacing:-.01em}
+/* ---- v4.2 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -169,23 +165,23 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 .hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--r);background:#12161f;min-height:360px;margin-bottom:14px}
 .hero canvas{position:absolute;inset:0;width:100%;height:100%}
 .hero .in{position:relative;z-index:1;padding:46px 34px 36px;max-width:560px;background:linear-gradient(90deg,rgba(18,22,31,.96) 55%,rgba(18,22,31,0))}
-.hero h1{font-size:clamp(28px,5vw,54px);padding-right:70px;line-height:1.02;margin:0 0 14px;font-weight:700}
+.hero h1{font-size:clamp(28px,5vw,50px);padding-right:70px;line-height:1.05;margin:0 0 14px;font-weight:600}
 .hero h1 .l{display:block;overflow:hidden}.hero h1 .l span{display:inline-block;transform:translateY(110%);animation:lift .9s cubic-bezier(.2,.8,.2,1) forwards}
 .hero h1 .l:nth-child(2) span{animation-delay:.14s}
 @keyframes lift{to{transform:none}}
 .hero p{color:var(--ink2);font-size:16px;max-width:44ch;margin:0 0 20px;opacity:0;animation:pagein .6s .5s forwards}
 .hero .row{opacity:0;animation:pagein .6s .7s forwards}
-.stamp{position:absolute;right:26px;top:26px;z-index:2;width:92px;height:92px;border:3.5px solid #d6453a;border-radius:8px;color:#d6453a;font-family:"Shippori Mincho",serif;font-weight:700;font-size:40px;display:flex;align-items:center;justify-content:center;transform:rotate(-8deg) scale(1.7);opacity:0;animation:stampin .35s 1s cubic-bezier(.6,0,.4,1) forwards;line-height:1}
-.stamp small{position:absolute;bottom:3px;right:6px;font-size:10px;font-family:"Karla",sans-serif}
+.stamp{position:absolute;right:26px;top:26px;z-index:2;width:92px;height:92px;border:3.5px solid #d6453a;border-radius:8px;color:#d6453a;font-family:inherit;font-weight:700;font-size:40px;display:flex;align-items:center;justify-content:center;transform:rotate(-8deg) scale(1.7);opacity:0;animation:stampin .35s 1s cubic-bezier(.6,0,.4,1) forwards;line-height:1}
+.stamp small{position:absolute;bottom:3px;right:6px;font-size:10px;font-family:inherit}
 @keyframes stampin{to{opacity:.95;transform:rotate(-8deg) scale(1)}}
 .ruler{display:grid;grid-template-columns:repeat(6,1fr);border-top:2px solid var(--line);margin:0 0 14px}
 .ruler div{padding:12px 10px 12px 0;border-left:1px solid var(--line);padding-left:10px}.ruler div:first-child{border-left:0;padding-left:0}
-.ruler b{display:block;font-family:"Shippori Mincho",serif;font-weight:500;font-size:clamp(26px,3.4vw,40px);line-height:1;color:var(--gold)}
+.ruler b{display:block;font-weight:600;font-size:clamp(26px,3.4vw,40px);line-height:1;color:var(--gold)}
 .ruler span{font-size:12px;color:var(--ink2)}
 @media(min-width:801px){.hero h1{padding-right:0}}
 @media(max-width:800px){.ruler{grid-template-columns:repeat(3,1fr)}.ruler div:nth-child(4){border-left:0;padding-left:0}.hero .in{padding:30px 20px 26px;background:linear-gradient(180deg,rgba(18,22,31,.97) 70%,rgba(18,22,31,.6))}.stamp{width:64px;height:64px;font-size:28px;right:14px;top:14px}}
 /* correct stamp */
-.seal{position:fixed;left:50%;top:38%;z-index:60;pointer-events:none;width:120px;height:120px;border:4px solid #d6453a;border-radius:10px;color:#d6453a;font-family:"Shippori Mincho",serif;font-weight:700;font-size:64px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%) rotate(-10deg) scale(2);opacity:0;animation:seal .9s cubic-bezier(.6,0,.4,1) forwards;line-height:1}
+.seal{position:fixed;left:50%;top:38%;z-index:60;pointer-events:none;width:120px;height:120px;border:4px solid #d6453a;border-radius:10px;color:#d6453a;font-family:inherit;font-weight:700;font-size:64px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%) rotate(-10deg) scale(2);opacity:0;animation:seal .9s cubic-bezier(.6,0,.4,1) forwards;line-height:1}
 @keyframes seal{15%{opacity:.9;transform:translate(-50%,-50%) rotate(-10deg) scale(1)}70%{opacity:.9;transform:translate(-50%,-50%) rotate(-10deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-10deg) scale(1)}}
 @media(prefers-reduced-motion:reduce){main>*,.hero h1 .l span,.hero p,.hero .row,.stamp{animation:none;opacity:1;transform:none}.stamp{transform:rotate(-8deg)}.seal{display:none}}
 </style>
@@ -193,7 +189,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.1</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.2</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -726,7 +722,7 @@ const REGLABEL={casual:'casual, with friends',staff:'with staff, polite but natu
 const STRIP=/[、。？！ ]/g;
 
 /* ---------- STATE ---------- */
-const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'kana',sound:true};
+const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
 let PROG={};
 try{PROG=JSON.parse(localStorage.getItem('kvt_prog')||'{}')}catch(e){PROG={}}
 function save(){try{localStorage.setItem('kvt_prog',JSON.stringify(PROG))}catch(e){}}
@@ -837,13 +833,13 @@ window.addEventListener('keydown',e=>{
 });
 
 /* ---------- NAV ---------- */
-document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store.mode=b.dataset.m;store.test=null;store.chat2=null;[...nav.children].forEach(x=>x.classList.toggle('on',x===b));render()});
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store.mode=b.dataset.m;store.test=null;store.chat2=null;store.formMode='hub';store.lesson=null;store.vc=null;store.chat=null;[...nav.children].forEach(x=>x.classList.toggle('on',x===b));render()});
 function render(){const m=document.getElementById('main');m.innerHTML='';store.keyOpts=null;({home,kana,kanatype,vocab,sent,talk,chat,forms,test,write,ref})[store.mode](m)}
 
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.1</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.2</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -2167,7 +2163,7 @@ function sentenceMatch(input,fullKana,v){let a=input.trim();if(!a)return false;
     return romMatch(romajiAny(back).replace(/[.,?!\s]/g,''),romajiAny(kana).replace(/[.,?!\s]/g,''))}
   return romMatch(a.replace(/[.,?!]/g,''),romajiAny(fullKana).replace(/[.,?!]/g,''))}
 
-const FORM_MODE_TITLE={vcourse:['Verb course','One verb at a time, every form, ten sentences per step'],course:['By form','One form across many verbs, rule then ten reps'],lessons:['All lessons','Every form explained, read only'],rules:['Rules','The three verb groups and how endings slide'],set:['Sets','One verb, five sentences, match or type the forms'],drill:['Make the form','Verb plus target form, pick the answer'],type:['Type it','Verb plus target form, type the romaji'],name:['Name the form','See a conjugated verb, say which form it is'],adj:['Adjectives','い and な adjectives, all their forms'],table:['Tables','Every form of any verb, with audio']};
+const FORM_MODE_TITLE={vcourse:['Verb course','One verb at a time, every form, ten sentences per step'],course:['By form','One form across many verbs, rule then ten reps'],lessons:['All lessons','Every form explained, read only'],rules:['Rules','The three verb groups and how endings slide'],set:['Sentences','One verb, five sentences, match or type the forms'],drill:['Make the form','Verb plus target form, pick the answer'],type:['Type it','Verb plus target form, type the romaji'],name:['Name the form','See a conjugated verb, say which form it is'],adj:['Adjectives','い and な adjectives, all their forms'],table:['Tables','Every form of any verb, with audio']};
 function formsHub(m){const grp=(t,ks)=>`<div class="hubgrp">${t}</div>`+ks.map(([k,ico])=>`<button class="hubbtn" data-v="${k}"><span class="hk">${ico}</span><div><b>${FORM_MODE_TITLE[k][0]}</b><span>${FORM_MODE_TITLE[k][1]}</span></div></button>`).join('');
   const d=document.createElement('div');d.innerHTML=`<div class="pagehead"><div><h1>Verb forms</h1><div class="sub">How endings change: casual and polite, past, negative, want, can, must</div></div></div><div class="hub">${grp('Learn',[['vcourse','動'],['course','形'],['lessons','読'],['rules','法']])}${grp('Practice',[['set','五'],['drill','選'],['type','打'],['name','名'],['adj','形']])}${grp('Reference',[['table','表']])}</div>`;
   d.onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;store.formMode=b.dataset.v;store.lesson=null;store.vc=null;render()};m.appendChild(d)}
@@ -2180,10 +2176,11 @@ function heroCloud(cv){if(!cv)return;const red=matchMedia('(prefers-reduced-moti
   function draw(t){if(!run)return;const W=cv.width,H=cv.height,s=devicePixelRatio;mx+=(tx-mx)*.05;my+=(ty-my)*.05;ctx.clearRect(0,0,W,H);
     P.sort((a,b)=>a.z-b.z);for(const p of P){if(!red){p.x+=p.vx;p.y+=p.vy;if(p.x<.28&&p.vx<0)p.vx=-p.vx;if(p.x<-.05)p.x=1.05;if(p.x>1.05)p.x=-.05;if(p.y<-.05)p.y=1.05;if(p.y>1.05)p.y=-.05}
       const px=(p.x+(mx-.5)*.08*p.z)*W,py=(p.y+(my-.5)*.08*p.z)*H;const dx=px-mx*W,dy=py-my*H,d=Math.hypot(dx,dy);const push=Math.max(0,140*s-d)/(140*s);const ox=dx/(d||1)*push*40*s,oy=dy/(d||1)*push*40*s;
-      const size=(16+p.z*34)*s;ctx.save();ctx.translate(px+ox,py+oy);ctx.rotate(p.r+(red?0:Math.sin(t/1800+p.x*9)*.05));ctx.globalAlpha=.05+p.z*.32;ctx.fillStyle='#ece4d2';ctx.fillRect(-size*.6,-size*.6,size*1.2,size*1.2);ctx.fillStyle='#15151a';ctx.font=`700 ${size*.78}px "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.c,0,size*.04);ctx.restore()}
+      const size=(16+p.z*34)*s;ctx.save();ctx.translate(px+ox,py+oy);ctx.rotate(p.r+(red?0:Math.sin(t/1800+p.x*9)*.05));ctx.globalAlpha=.05+p.z*.32;ctx.fillStyle='#ece4d2';ctx.fillRect(-size*.6,-size*.6,size*1.2,size*1.2);ctx.fillStyle='#15151a';ctx.font=`700 ${size*.78}px "Hiragino Sans","Yu Gothic","Meiryo","Noto Sans JP",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.c,0,size*.04);ctx.restore()}
     if(!red)requestAnimationFrame(draw)}
   requestAnimationFrame(draw)}
 function sealHit(){const e=document.createElement('div');e.className='seal';e.textContent='正';document.body.appendChild(e);setTimeout(()=>e.remove(),950)}
+const KANJI_W=[['日','nichi / hi','day, sun',4],['月','getsu / tsuki','month, moon',4],['火','ka / hi','fire',4],['水','sui / mizu','water',4],['木','moku / ki','tree',4],['金','kin / kane','gold, money',8],['土','do / tsuchi','earth',3],['人','jin / hito','person',2],['口','kou / kuchi','mouth',3],['山','san / yama','mountain',3],['川','sen / kawa','river',3],['大','dai / oo','big',3],['小','shou / chii','small',3],['中','chuu / naka','inside',4],['上','jou / ue','up',3],['下','ka / shita','down',3],['左','sa / hidari','left',5],['右','u / migi','right',5],['入','nyuu / hai','enter',2],['出','shutsu / de','exit',5],['東','tou / higashi','east',8],['西','sei / nishi','west',6],['南','nan / minami','south',9],['北','hoku / kita','north',5],['駅','eki','station',14],['電','den','electricity',13],['車','sha / kuruma','car',7],['店','ten / mise','shop',8],['食','shoku / ta','eat',9],['飲','in / no','drink',12],['肉','niku','meat',6],['魚','gyo / sakana','fish',11],['酒','shu / sake','alcohol',10],['円','en','yen',4],['千','sen','thousand',3],['万','man','ten thousand',3],['一','ichi','one',1],['二','ni','two',2],['三','san','three',3],['四','shi / yon','four',5],['五','go','five',4],['六','roku','six',4],['七','shichi / nana','seven',2],['八','hachi','eight',2],['九','kyuu','nine',2],['十','juu','ten',2],['百','hyaku','hundred',6],['本','hon','book, origin',5],['語','go','language',14],['学','gaku / mana','study',8],['生','sei / i','life, birth',5],['先','sen / saki','ahead',6],['今','kon / ima','now',4],['時','ji / toki','time',10],['分','fun / wa','minute, divide',4],['年','nen / toshi','year',6],['何','ka / nani','what',7],['行','kou / i','go',6],['来','rai / ku','come',7],['見','ken / mi','see',7],['聞','bun / ki','hear',14],['話','wa / hana','talk',13],['読','doku / yo','read',14],['書','sho / ka','write',10],['買','bai / ka','buy',12],['休','kyuu / yasu','rest',6],['友','yuu / tomo','friend',4],['男','dan / otoko','man',7],['女','jo / onna','woman',3],['子','shi / ko','child',3],['名','mei / na','name',6],['国','koku / kuni','country',8],['天','ten / ama','heaven',4],['気','ki','spirit, air',6],['雨','u / ame','rain',8],['空','kuu / sora','sky',8],['花','ka / hana','flower',7],['犬','ken / inu','dog',4],['猫','byou / neko','cat',11],['新','shin / atara','new',13],['古','ko / furu','old',5],['高','kou / taka','tall, expensive',10],['安','an / yasu','cheap, safe',6],['多','ta / oo','many',6],['少','shou / suku','few',4],['好','kou / su','like',6],['止','shi / to','stop',4],['開','kai / a','open',12],['閉','hei / shi','close',11],['押','ou / o','push',8],['引','in / hi','pull',4],['禁','kin','forbidden',13],['煙','en / kemuri','smoke',13],['男','dan','men (toilet sign)',7],['女','jo','women (toilet sign)',3],['無','mu / na','none',12],['有','yuu / a','have',6],['料','ryou','fee',10],['税','zei','tax',12],['込','ko','included',5],['別','betsu','separate',7],['席','seki','seat',10],['空席','kuuseki','empty seat',18],['満','man','full',12],['営業','eigyou','open for business',25],['準備','junbi','preparing',24],['地下','chika','underground',9],['鉄','tetsu','iron',13],['線','sen','line',15],['乗','jou / no','ride',9],['降','kou / o','get off',10],['換','kan','exchange',12],['番','ban','number',12],['号','gou','number sign',5]];
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
   const d=document.createElement('div');d.className='card';
@@ -2336,16 +2333,17 @@ function test(m){
 /* ---------- WRITING ---------- */
 function write(m){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<div class="pagehead"><div><h1>Write</h1><div class="sub">Draw from memory, then reveal</div></div></div><div id="wm"><div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${store.wmode!=='word'?'on':''}" data-w="kana">Single kana</span><span class="chip ${store.wmode==='word'?'on':''}" data-w="word">Whole word</span></div></div></div>`;
+  d.innerHTML=`<div class="pagehead"><div><h1>Write</h1><div class="sub">Draw from memory, then reveal</div></div></div><div id="wm"><div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${store.wmode==='h'?'on':''}" data-w="h">Hiragana</span><span class="chip ${store.wmode==='k'?'on':''}" data-w="k">Katakana</span><span class="chip ${store.wmode==='kanji'?'on':''}" data-w="kanji">Kanji</span><span class="chip ${store.wmode==='word'?'on':''}" data-w="word">Whole word</span></div></div></div>`;
   d.querySelector('#wm').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.wmode=c.dataset.w;render()};
   m.appendChild(d);
   let target,label,id;
   if(store.wmode==='word'){const pool=VOCAB.filter(v=>store.cats.has(v.cat));const it=pick(pool,v=>'w:'+v.jp,lastId);target=it.jp;label=`${it.r} (${esc(it.en)})`;id='w:'+it.jp}
-  else{const pool=kanaPool();const it=pick(pool,x=>'w'+x.id,lastId);target=it.ch;label=`${it.r} in ${it.id[0]==='h'?'hiragana':'katakana'}`;id='w'+it.id}
+  else if(store.wmode==='kanji'){const it=pick(KANJI_W,x=>'wk:'+x[0],lastId);target=it[0];label=`${it[1]} (${esc(it[2])})`;id='wk:'+it[0]}
+  else{const sc=store.wmode==='k'?'k':'h';const pool=KANA.filter(k=>store.rows.has(k.row)).map(k=>({id:sc+':'+(sc==='k'?k.k:k.h),ch:sc==='k'?k.k:k.h,r:k.r}));const it=pick(pool,x=>'w'+x.id,lastId);target=it.ch;label=`${it.r} in ${sc==='h'?'hiragana':'katakana'}`;id='w'+it.id}
   lastId=id;
   const c=document.createElement('div');c.className='card';
-  const fs=target.length>3?70:target.length>1?110:200;
-  c.innerHTML=`<div class="meaning">Write: ${label}</div>${itemStat(id)}<div class="canvasWrap"><canvas id="cv" width="280" height="280"></canvas><div class="ghost ja" id="ghost" style="font-size:${fs}px;display:none">${target}</div></div>
+  const fs=target.length>3?70:target.length>1?110:200;const strokes=store.wmode==='kanji'?(KANJI_W.find(k=>k[0]===target)||[])[3]:null;
+  c.innerHTML=`<div class="meaning">Write: ${label}</div>${strokes?`<div class="hint" style="text-align:center">${strokes} strokes</div>`:''}${itemStat(id)}<div class="canvasWrap"><canvas id="cv" width="280" height="280"></canvas><div class="ghost ja" id="ghost" style="font-size:${fs}px;display:none">${target}</div></div>
    <div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="reveal">Reveal</button><button class="btn" id="clear">Clear</button>${canSpeak?'<button class="btn" id="say">Listen</button>':''}</div><div class="row" id="grade" style="display:none"><span>Did you get it?</span><button class="btn" id="yes">Yes</button><button class="btn" id="no">No</button></div>`;
   m.appendChild(c);
   const cv=c.querySelector('#cv'),ctx=cv.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round';
