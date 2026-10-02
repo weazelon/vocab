@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v4.2</title>
+<title>Kana + Vocab Trainer v4.4</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -125,6 +125,10 @@ details.hintbox .inner{margin-top:6px}
 .filt .chip.on::before{content:"\2713\00a0";font-size:11px}
 .optrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .optrow .opt{font-size:18px;padding:8px 12px;flex:0 0 auto}
+.enw{cursor:pointer;border-bottom:1px dotted rgba(169,176,194,.5)}
+.enw:hover{color:var(--gold)}
+.pop{position:fixed;z-index:70;background:var(--panel2);border:1px solid var(--gold);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:260px;pointer-events:none}
+.pop .ja{color:var(--gold);font-size:20px;display:block}
 .qbox{font-size:34px;text-align:center;color:var(--gold);margin:10px 0 4px;line-height:1.3}
 .ans{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
 .ans .a{font-size:24px;color:var(--gold)} .ans .ar{color:var(--ink2);font-size:14px} .ans .ae{font-size:15px}
@@ -150,7 +154,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v4.2 visual pass: ink, paper, motion (no libraries) ---- */
+/* ---- v4.4 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -184,12 +188,25 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 .seal{position:fixed;left:50%;top:38%;z-index:60;pointer-events:none;width:120px;height:120px;border:4px solid #d6453a;border-radius:10px;color:#d6453a;font-family:inherit;font-weight:700;font-size:64px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%) rotate(-10deg) scale(2);opacity:0;animation:seal .9s cubic-bezier(.6,0,.4,1) forwards;line-height:1}
 @keyframes seal{15%{opacity:.9;transform:translate(-50%,-50%) rotate(-10deg) scale(1)}70%{opacity:.9;transform:translate(-50%,-50%) rotate(-10deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-10deg) scale(1)}}
 @media(prefers-reduced-motion:reduce){main>*,.hero h1 .l span,.hero p,.hero .row,.stamp{animation:none;opacity:1;transform:none}.stamp{transform:rotate(-8deg)}.seal{display:none}}
+
+/* scrollbars match the theme */
+*{scrollbar-width:thin;scrollbar-color:#2c3548 transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2c3548;border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#3b465c;background-clip:padding-box;border:2px solid transparent}
+::-webkit-scrollbar-corner{background:transparent}
+.side{scrollbar-color:#242c3c transparent}
+.side::-webkit-scrollbar{width:6px}
+.side::-webkit-scrollbar-thumb{background:#242c3c;background-clip:padding-box;border:1px solid transparent}
+.side:not(:hover)::-webkit-scrollbar-thumb{background:transparent}
+.side:not(:hover){scrollbar-color:transparent transparent}
 </style>
 </head>
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.2</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.4</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -839,7 +856,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.2</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.4</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -1247,7 +1264,7 @@ function lessonRun(c){
     c.querySelector('#redo').onclick=()=>startLesson(L,S.si);const nb=c.querySelector('#nextBtn');if(nb)nb.onclick=()=>nextSeg?startLesson(L,S.si+1):startLesson(nextL,0);c.querySelector('#back').onclick=()=>{store.lesson=null;render()};return}
   const it=S.items[S.i];const [pre,suf,label]=it.ctx;const full=pre+it.frame+suf;
   c.innerHTML=crumbs+`<div class="hint">exercise ${S.i+1} of 10 · ${S.ok} right</div><div class="bar"><i style="width:${S.i*10}%"></i></div>
-   <div class="formq"><div class="v ja" style="font-size:30px">${full}</div><div class="t">${it.verb} → ${label}</div>${hintbox(`<div class="hint">${toRomaji(it.verb)} = ${esc(it.en)}</div>`)}</div>
+   <div class="formq"><div class="v ja" style="font-size:30px">${full}</div><div class="t">${it.verb} → ${label}</div>${recipeBox(L.k)}${hintbox(`<div class="hint">${toRomaji(it.verb)} = ${esc(it.en)}</div>`)}</div>
    <div class="choices">${it.opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button><button class="btn small" id="ruleBtn">Rule again</button></div><div id="ruleWrap"></div>`;
   c.querySelector('#ruleBtn').onclick=()=>{c.querySelector('#ruleWrap').innerHTML=`<div class="lesson">${esc(seg.text)}</div>`};
   choiceFlow(c,it.opts,b=>b.dataset.r===it.right,good=>{if(good)S.ok++;else S.miss.push(it);const done=pre+it.frame.replace('＿＿',it.right)+suf;
@@ -1513,16 +1530,16 @@ function vcHome(c){
   c.querySelector('#pprev').onclick=()=>{store.vcPages[tab]--;render()};c.querySelector('#pnext').onclick=()=>{store.vcPages[tab]++;render()};
   c.onclick=e=>{const t=e.target.closest('[data-tab]');if(t){store.vcTab=+t.dataset.tab;render();return}const r=e.target.closest('tr[data-i]');if(!r)return;const vi=+r.dataset.i;const segs=vcSegsFor(VCOURSE[vi]);let si=segs.findIndex((s,j)=>!((PROG[vcId(vi,j)]||{}).best>=8));vcStart(vi,si<0?0:si)};
 }
-function vcExamples(v,k){const f=conj(v);const [pre,enT]=enFor(v,k);return v[5].map(fr=>{const jp=pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return `<div><span class="ja" data-say="${jp.replace(/ /g,'')}" style="cursor:pointer;color:var(--gold);font-size:18px">${jp}</span> <span class="hint">${romajiAny(jp)}</span><div class="hint">${esc(en)}</div></div>`}).join('')}
+function vcExamples(v,k){const f=conj(v);const [pre,enT]=enFor(v,k);return v[5].map(fr=>{const jp=pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return `<div><span class="ja" data-say="${jp.replace(/ /g,'')}" style="cursor:pointer;color:var(--gold);font-size:18px">${jp}</span> <span class="hint">${romajiAny(jp)}</span><div class="hint">${wrapEn(en,v)}</div></div>`}).join('')}
 function vcTeiruNote(v,k){if(k!=='teru'&&k!=='teta')return '';const x=VC_EXTRA(v);const f=conj(v);const [pre]=enFor(v,k);const fr=v[5][0];const row=(form,label)=>`<tr data-say="${(pre+fr[0]+form).replace(/ /g,'')}"><td class="fj ja" style="font-size:18px">${pre}${fr[0]} ${form}。</td><td class="fl">${romajiAny(pre+fr[0]+' '+form)}</td><td class="fl">${label}</td></tr>`;
   return k==='teru'?`<div class="note"><b>てる and ている are the same form.</b> The full form is ${f.te}いる. In speech everyone drops the い: ${f.te}る. In writing, in polite speech, and when speaking slowly the い comes back. Both are correct; てる is just the spoken version.<table class="ftable">${row(x.teiru,'full form (writing, careful speech)')}${row(f.teru,'spoken casual (what you will hear)')}${row(x.teimasu,'polite (ています)')}${row(f.te+'ます','relaxed polite (てます, い dropped)')}</table></div>`
   :`<div class="note"><b>てた is ていた with the い dropped.</b><table class="ftable">${row(x.teita,'full form')}${row(f.teta,'spoken casual')}${row(x.teimashita,'polite (ていました)')}${row(f.te+'ました','relaxed polite (てました)')}</table></div>`}
 const VSEGS=[['plain and polite',['dict','masu']],['negative',['nai','masen']],['past',['ta','mashita']],['past negative',['nakatta','masendeshita']],['request: casual and polite',['te','tekudasai']],['-ing: casual and polite',['teru','teimasu']],['was -ing: casual and polite',['teta','teimashita']],['want to: casual and polite',['tai','taidesu']],['don\'t want to: casual and polite',['takunai','takunaidesu']],['can: casual and polite',['pot','potmasu']],['let\'s: casual and polite',['vol','mashou']],['gotta: casual and polite',['nakya','nakereba']],['all forms mixed',null]];
 // English of the whole sentence, per form. {b}=base {p}=past {g}=-ing {x}=object
-const FORM_EN={dict:['','I {b} {x}. (casual)'],masu:['','I {b} {x}. (polite)'],nai:['','I don\'t {b} {x}. (casual)'],masen:['','I don\'t {b} {x}. (polite)'],ta:['きのう ','Yesterday I {p} {x}. (casual)'],mashita:['きのう ','Yesterday I {p} {x}. (polite)'],nakatta:['きのう ','Yesterday I didn\'t {b} {x}. (casual)'],masendeshita:['きのう ','Yesterday I didn\'t {b} {x}. (polite)'],te:['','{b} {x}, please. (casual, friends)'],tekudasai:['','Please {b} {x}. (polite)'],teru:['いま ','I\'m {g} {x} right now. (casual)'],teimasu:['いま ','I\'m {g} {x} right now. (polite)'],teta:['さっき ','I was {g} {x} just now. (casual)'],teimashita:['さっき ','I was {g} {x} just now. (polite)'],tai:['','I want to {b} {x}. (casual)'],taidesu:['','I want to {b} {x}. (polite)'],takunai:['','I don\'t want to {b} {x}. (casual)'],takunaidesu:['','I don\'t want to {b} {x}. (polite)'],pot:['','Can you {b} {x}? (casual)'],potmasu:['','Can you {b} {x}? (polite)'],vol:['いっしょ に ','Let\'s {b} {x} together. (casual)'],mashou:['いっしょ に ','Let\'s {b} {x} together. (polite)'],nakya:['もう ','I gotta {b} {x} now. (casual)'],nakereba:['もう ','I have to {b} {x} now. (polite)']};
+const FORM_EN={dict:['あした ','Tomorrow I\'ll {b} {x}. (casual)'],masu:['あした ','Tomorrow I\'ll {b} {x}. (polite)'],nai:['あした は ','Tomorrow I won\'t {b} {x}. (casual)'],masen:['あした は ','Tomorrow I won\'t {b} {x}. (polite)'],ta:['きのう ','Yesterday I {p} {x}. (casual)'],mashita:['きのう ','Yesterday I {p} {x}. (polite)'],nakatta:['きのう ','Yesterday I didn\'t {b} {x}. (casual)'],masendeshita:['きのう ','Yesterday I didn\'t {b} {x}. (polite)'],te:['','{b} {x}, please. (casual, friends)'],tekudasai:['','Please {b} {x}. (polite)'],teru:['いま ','I\'m {g} {x} right now. (casual)'],teimasu:['いま ','I\'m {g} {x} right now. (polite)'],teta:['さっき ','I was {g} {x} just now. (casual)'],teimashita:['さっき ','I was {g} {x} just now. (polite)'],tai:['','I want to {b} {x}. (casual)'],taidesu:['','I want to {b} {x}. (polite)'],takunai:['','I don\'t want to {b} {x}. (casual)'],takunaidesu:['','I don\'t want to {b} {x}. (polite)'],pot:['','I can {b} {x}. (casual)'],potmasu:['','I can {b} {x}. (polite)'],vol:['いっしょ に ','Let\'s {b} {x} together. (casual)'],mashou:['いっしょ に ','Let\'s {b} {x} together. (polite)'],nakya:['もう ','I gotta {b} {x} now. (casual)'],nakereba:['もう ','I have to {b} {x} now. (polite)']};
 const FORM_EN_S={dict:['','{x} will {b}. (casual)'],masu:['','{x} will {b}. (polite)'],nai:['','{x} won\'t {b}. (casual)'],masen:['','{x} won\'t {b}. (polite)'],ta:['きのう ','Yesterday {x} {p}. (casual)'],mashita:['きのう ','Yesterday {x} {p}. (polite)'],nakatta:['きのう ','Yesterday {x} didn\'t {b}. (casual)'],masendeshita:['きのう ','Yesterday {x} didn\'t {b}. (polite)'],te:['','{x}, {b}! (casual plea)'],tekudasai:['','{x}, please {b}.'],teru:['いま ','{x} is {g} right now. (casual)'],teimasu:['いま ','{x} is {g} right now. (polite)'],teta:['さっき ','{x} was {g} just now. (casual)'],teimashita:['さっき ','{x} was {g} just now. (polite)'],tai:['','I want {x} to {b}. (casual)'],taidesu:['','I want {x} to {b}. (polite)'],takunai:['','I don\'t want {x} to {b}. (casual)'],takunaidesu:['','I don\'t want {x} to {b}. (polite)'],pot:['','Can {x} {b}? (casual)'],potmasu:['','Can {x} {b}? (polite)'],vol:['','Let {x} {b}. (casual)'],mashou:['','Let {x} {b}. (polite)'],nakya:['','{x} has to {b}. (casual)'],nakereba:['','{x} has to {b}. (polite)']};
 function enFor(v,k){return (v[6]==='S'?FORM_EN_S:FORM_EN)[k]}
-const FORM_SUF={te:'。',tekudasai:'。',pot:'？',potmasu:' か？',tai:' な。'};
+const FORM_SUF={te:'。',tekudasai:'。',pot:'。',potmasu:'。',tai:' な。'};
 function ruleFor(v,k){const [d,g]=v;const f=conj(v)[k];const name=FORMS[k][0];
   if(g==='s'||g==='k')return `${name}: ${d} is ${d.slice(0,-2)?d.slice(0,-2)+' + '+d.slice(-2)+', and ':''}${d.slice(-2)} is irregular, just memorize it: ${d} → ${f}.`;
   if(g==='i')return `${name}: ${d} is a ru-verb. Chop the る, add ${f.slice(d.length-1)||'nothing'}: ${d} → ${f}.`;
@@ -1558,12 +1575,12 @@ function vcRun(c){
     c.querySelector('#redo').onclick=()=>vcStart(S.vi,S.si);const nb=c.querySelector('#nextBtn');if(nb)nb.onclick=()=>nextSeg?vcStart(S.vi,S.si+1):vcStart(S.vi+1,0);c.querySelector('#back').onclick=()=>{store.vc=null;render()};return}
   const it=S.items[S.i];
   c.innerHTML=crumbs+`<div class="hint">sentence ${S.i+1} of 10 · ${S.ok} right</div><div class="bar"><i style="width:${S.i*10}%"></i></div>
-   <div class="formq"><div class="v ja" style="font-size:30px">${it.jp}</div><div class="t">${v[0]} → ${FORMS[it.k][0]}</div>${hintbox(`<div class="meaning" style="font-size:20px">${esc(it.en)}</div><div class="hint">${v[0]} = ${esc(v[2])} · ${esc(FORMS[it.k][1])}</div>`)}</div>
+   <div class="formq"><div class="v ja" style="font-size:30px">${it.jp}</div><div class="t">${v[0]} → ${FORMS[it.k][0]}</div>${recipeBox(it.k)}${hintbox(`<div class="meaning" style="font-size:20px">${wrapEn(it.en,v)}</div><div class="hint">${v[0]} = ${esc(v[2])} · ${esc(FORMS[it.k][1])}</div>`)}</div>
    <div class="choices">${it.opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button><button class="btn small" id="ruleBtn">Rule again</button></div><div id="ruleWrap"></div>`;
   c.querySelector('#ruleBtn').onclick=()=>{c.querySelector('#ruleWrap').innerHTML=`<div class="lesson">${esc(ruleFor(v,it.k))}</div>`};
   choiceFlow(c,it.opts,b=>b.dataset.r===it.right,good=>{if(good)S.ok++;else S.miss.push(it);const done=it.jp.replace('＿＿',it.right);
     mark('f:'+v[0]+':'+it.k,good);if(good)sfxOk();else sfxBad();const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');
-    fb.innerHTML=`${good?'Correct. ':'No. '}<span class="ja">${done}</span><div class="romaji">${romajiAny(done)}</div><div class="meaning" style="font-size:16px">${esc(it.en)}</div>${good?'':`<div class="note">${esc(ruleFor(v,it.k))}</div>`}`;
+    fb.innerHTML=`${good?'Correct. ':'No. '}<span class="ja">${done}</span><div class="romaji">${romajiAny(done)}</div><div class="meaning" style="font-size:16px">${wrapEn(it.en,v)}</div>${good?'':`<div class="note">${esc(ruleFor(v,it.k))}</div>`}`;
     const row=c.querySelector('.row.actions');row.innerHTML='';if(canSpeak){const l=document.createElement('button');l.className='btn';l.textContent='Listen';l.onclick=()=>speak(done);row.appendChild(l)}
     const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next <span class="keyhint">Enter</span>';nb.onclick=()=>{S.i++;render()};row.appendChild(nb);nb.focus()});
 }
@@ -2106,8 +2123,8 @@ Object.assign(GLOSS,GLOSS3);
 function toRomaji(s){return romajiAny(s)}
 function hintbox(inner,label){return `<details class="hintbox"><summary>${label||'show meaning'}</summary><div class="inner">${inner}</div></details>`}
 /* ---------- SET PRACTICE: one verb, five sentences, match or type the forms ---------- */
-function setBuild(v,n){const f=conj(v);const skipS=new Set(['te','tekudasai','vol','mashou','nakya','nakereba','pot','potmasu']);const keys=shuffle(Object.keys(f).filter(k=>enFor(v,k)&&!(v[6]==='S'&&skipS.has(k)))).slice(0,n);
-  return keys.map(k=>{const fr=v[5][Math.floor(Math.random()*3)];const [pre,enT]=enFor(v,k);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return {k,jp,en,right:f[k],full:jp.replace('＿＿',f[k])}})}
+function setBuild(v,n){const f=conj(v);const skipS=new Set(['te','tekudasai','vol','mashou','nakya','nakereba','pot','potmasu','tai','taidesu','takunai','takunaidesu']);const keys=shuffle(Object.keys(f).filter(k=>enFor(v,k)&&!(v[6]==='S'&&skipS.has(k)))).slice(0,n);
+  return keys.map(k=>{const fr=v[5][Math.floor(Math.random()*3)];const [pre,enT]=enFor(v,k);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');let en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());if(/alone together/.test(en)){en=en.replace(' alone together',' together')};return {k,jp,en,right:f[k],full:jp.replace('＿＿',f[k])}})}
 function setMode(c){
   if(!store.setV){const pool=VERBALL.map((v,i)=>i);store.setV=pool[Math.floor(Math.random()*pool.length)];store.setItems=null}
   const v=VERBALL[store.setV];const f=conj(v);const typeMode=store.setKind==='type';
@@ -2118,7 +2135,7 @@ function setMode(c){
    <div class="formq"><div class="v ja">${v[0]}</div><div class="hint">${toRomaji(v[0])} = ${esc(v[2])} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="t">${typeMode?'Type each sentence in romaji, with the verb in the right form':'Pick the right form of '+v[0]+' for each sentence'}</div></div>
    
    <table class="ftable" id="setT">${items.map((it,i)=>`<tr><td class="fl" style="width:24px">${i+1}</td><td>
-     <div>${esc(it.en)}</div>
+     <div>${wrapEn(it.en,v)}</div>
      ${typeMode?`<div class="hint">(${FORMS[it.k][0]})</div><input type="text" class="setinp" data-i="${i}" placeholder="romaji, kana or kanji" autocomplete="off" autocapitalize="off" style="font-size:16px;text-align:left;margin-top:4px">`
      :`<div class="ja" style="font-size:22px;color:var(--gold)">${it.jp}</div><div class="optrow" data-row="${i}">${options.map(o=>`<button class="opt ja" data-o="${o}">${o}</button>`).join('')}</div>`}
      <div class="setfb hint" data-i="${i}"></div></td></tr>`).join('')}</table>
@@ -2181,6 +2198,19 @@ function heroCloud(cv){if(!cv)return;const red=matchMedia('(prefers-reduced-moti
   requestAnimationFrame(draw)}
 function sealHit(){const e=document.createElement('div');e.className='seal';e.textContent='正';document.body.appendChild(e);setTimeout(()=>e.remove(),950)}
 const KANJI_W=[['日','nichi / hi','day, sun',4],['月','getsu / tsuki','month, moon',4],['火','ka / hi','fire',4],['水','sui / mizu','water',4],['木','moku / ki','tree',4],['金','kin / kane','gold, money',8],['土','do / tsuchi','earth',3],['人','jin / hito','person',2],['口','kou / kuchi','mouth',3],['山','san / yama','mountain',3],['川','sen / kawa','river',3],['大','dai / oo','big',3],['小','shou / chii','small',3],['中','chuu / naka','inside',4],['上','jou / ue','up',3],['下','ka / shita','down',3],['左','sa / hidari','left',5],['右','u / migi','right',5],['入','nyuu / hai','enter',2],['出','shutsu / de','exit',5],['東','tou / higashi','east',8],['西','sei / nishi','west',6],['南','nan / minami','south',9],['北','hoku / kita','north',5],['駅','eki','station',14],['電','den','electricity',13],['車','sha / kuruma','car',7],['店','ten / mise','shop',8],['食','shoku / ta','eat',9],['飲','in / no','drink',12],['肉','niku','meat',6],['魚','gyo / sakana','fish',11],['酒','shu / sake','alcohol',10],['円','en','yen',4],['千','sen','thousand',3],['万','man','ten thousand',3],['一','ichi','one',1],['二','ni','two',2],['三','san','three',3],['四','shi / yon','four',5],['五','go','five',4],['六','roku','six',4],['七','shichi / nana','seven',2],['八','hachi','eight',2],['九','kyuu','nine',2],['十','juu','ten',2],['百','hyaku','hundred',6],['本','hon','book, origin',5],['語','go','language',14],['学','gaku / mana','study',8],['生','sei / i','life, birth',5],['先','sen / saki','ahead',6],['今','kon / ima','now',4],['時','ji / toki','time',10],['分','fun / wa','minute, divide',4],['年','nen / toshi','year',6],['何','ka / nani','what',7],['行','kou / i','go',6],['来','rai / ku','come',7],['見','ken / mi','see',7],['聞','bun / ki','hear',14],['話','wa / hana','talk',13],['読','doku / yo','read',14],['書','sho / ka','write',10],['買','bai / ka','buy',12],['休','kyuu / yasu','rest',6],['友','yuu / tomo','friend',4],['男','dan / otoko','man',7],['女','jo / onna','woman',3],['子','shi / ko','child',3],['名','mei / na','name',6],['国','koku / kuni','country',8],['天','ten / ama','heaven',4],['気','ki','spirit, air',6],['雨','u / ame','rain',8],['空','kuu / sora','sky',8],['花','ka / hana','flower',7],['犬','ken / inu','dog',4],['猫','byou / neko','cat',11],['新','shin / atara','new',13],['古','ko / furu','old',5],['高','kou / taka','tall, expensive',10],['安','an / yasu','cheap, safe',6],['多','ta / oo','many',6],['少','shou / suku','few',4],['好','kou / su','like',6],['止','shi / to','stop',4],['開','kai / a','open',12],['閉','hei / shi','close',11],['押','ou / o','push',8],['引','in / hi','pull',4],['禁','kin','forbidden',13],['煙','en / kemuri','smoke',13],['男','dan','men (toilet sign)',7],['女','jo','women (toilet sign)',3],['無','mu / na','none',12],['有','yuu / a','have',6],['料','ryou','fee',10],['税','zei','tax',12],['込','ko','included',5],['別','betsu','separate',7],['席','seki','seat',10],['空席','kuuseki','empty seat',18],['満','man','full',12],['営業','eigyou','open for business',25],['準備','junbi','preparing',24],['地下','chika','underground',9],['鉄','tetsu','iron',13],['線','sen','line',15],['乗','jou / no','ride',9],['降','kou / o','get off',10],['換','kan','exchange',12],['番','ban','number',12],['号','gou','number sign',5]];
+const FORM_RECIPE={dict:'dictionary form, nothing added',masu:'stem + ます',nai:'a-stem + ない (ru-verb: drop る + ない)',masen:'stem + ません',ta:'te-form with て→た / で→だ',mashita:'stem + ました',nakatta:'a-stem + なかった',masendeshita:'stem + ませんでした',te:'te-form: って / んで / いて / いで / して (ru-verb: drop る + て)',tekudasai:'te-form + ください',teru:'te-form + る (short for ている)',teimasu:'te-form + います',teta:'te-form + た (short for ていた)',teimashita:'te-form + いました',tai:'stem + たい',taidesu:'stem + たいです',takunai:'stem + たくない',takunaidesu:'stem + たくないです',pot:'e-stem + る (ru-verb: drop る + られる)',potmasu:'e-stem + ます (ru-verb: られます)',vol:'o-stem + う (ru-verb: drop る + よう)',mashou:'stem + ましょう',nakya:'a-stem + なきゃ',nakereba:'a-stem + ないといけません'};
+function recipeBox(k){return `<details class="hintbox" style="margin-top:4px"><summary>how it is built</summary><div class="inner hint">${esc(FORM_RECIPE[k]||'')}<div style="margin-top:2px">${esc(FORMS[k][1])}</div></div></details>`}
+
+const EN2JP={'tomorrow':'あした','yesterday':'きのう','now':'いま','right now':'いま','just now':'さっき','together':'いっしょに','please':'ください / おねがいします','i':'わたし / ぼく','i\'ll':'わたし は (future)','i\'m':'わたし は','didn\'t':'なかった','delivered':'とどけた','you':'あなた / きみ','we':'わたしたち','will':'(dictionary form)','won\'t':'ない','don\'t':'ない','didn\'t':'なかった','want':'たい','gotta':'なきゃ','have to':'ないといけません','can':'られる / える','let\'s':'よう / ましょう','was':'た / ていた','is':'です / だ','my':'わたしの','me':'わたし','him':'かれ','her':'かのじょ','the':'','a':'','an':'','to':'に / へ','at':'で / に','in':'で / に','on':'で / に','for':'のために','with':'と','from':'から','of':'の','and':'と','some':'すこし','this':'これ','that':'それ','here':'ここ','there':'そこ','alone':'ひとりで','early':'はやく','slowly':'ゆっくり','home':'いえ / うち','work':'しごと','money':'おかね','time':'じかん','rice':'ごはん','beer':'ビール','coffee':'コーヒー','water':'みず','ramen':'ラーメン','train':'でんしゃ','station':'えき','hotel':'ホテル','friend':'ともだち','japanese':'にほんご','english':'えいご','photo':'しゃしん','key':'かぎ','umbrella':'かさ','wallet':'さいふ','ticket':'きっぷ','card':'カード','phone':'でんわ / スマホ','room':'へや','door':'ドア','window':'まど','bag':'かばん','shoes':'くつ','clothes':'ふく','food':'たべもの','meat':'にく','fish':'さかな','egg':'たまご','vegetables':'やさい','bread':'パン','movie':'えいが','anime':'アニメ','manga':'マンガ','game':'ゲーム','music':'おんがく','song':'うた','book':'ほん','name':'なまえ','plan':'よてい','price':'ねだん','rain':'あめ','snow':'ゆき','sky':'そら','sea':'うみ','mountain':'やま','park':'こうえん','city':'まち','town':'まち','shop':'みせ','store':'みせ','car':'くるま','bus':'バス','taxi':'タクシー','subway':'ちかてつ','airport':'くうこう','japan':'にほん','tokyo':'とうきょう','kyoto':'きょうと','osaka':'おおさか','israel':'イスラエル','package':'にもつ','luggage':'にもつ','letter':'てがみ','email':'メール','message':'メッセージ','map':'ちず','girlfriend':'かのじょ','kid':'こども','people':'ひと','person':'ひと','everyone':'みんな','someone':'だれか','something':'なにか','light':'でんき','ac':'エアコン','tv':'テレビ','question':'しつもん','test':'しけん','homework':'しゅくだい','practice':'れんしゅう','way':'みち','road':'みち','corner':'かど','bridge':'はし','stairs':'かいだん','seat':'せき','chair':'いす','desk':'つくえ','trash':'ごみ','box':'はこ','toilet':'トイレ','bath':'おふろ','breakfast':'あさごはん','dinner':'ばんごはん','curry':'カレー','meal':'ごはん','figure':'フィギュア','figures':'フィギュア','souvenir':'おみやげ','souvenirs':'おみやげ','merch':'グッズ','cat':'ねこ','dog':'いぬ','weather':'てんき','winter':'ふゆ','summer':'なつ','night':'よる','morning':'あさ','afternoon':'ごご','week':'しゅう','month':'つき','year':'とし','mt fuji':'ふじさん','skytree':'スカイツリー','stars':'ほし','moon':'つき','wind':'かぜ','fever':'ねつ','temperature':'きおん','head':'あたま','hands':'て','face':'かお','body':'からだ','eyes':'め','sleet':'みぞれ','wi-fi':'ワイファイ','suica':'スイカ','line':'ライン','ex':'もとかれ / もとかの'};
+function wrapEn(en,v){const base=v?[v[2],v[3],v[4]].filter(Boolean).map(x=>x.toLowerCase()):[];const words=esc(en).split(/(\s+|[.,?!()])/);let out='';
+  for(let i=0;i<words.length;i++){const w=words[i];if(!/^[A-Za-z][A-Za-z'\-]*$/.test(w)){out+=w;continue}
+    const low=w.toLowerCase();const nxt=words[i+2]&&/^[A-Za-z]/.test(words[i+2])?low+' '+words[i+2].toLowerCase():null;
+    if(nxt&&EN2JP[nxt]){out+=`<span class="enw" data-jp="${EN2JP[nxt]}">${w}${words[i+1]}${words[i+2]}</span>`;i+=2;continue}
+    let jp=EN2JP[low];if(jp===undefined){const bare=low.replace(/^i'll$/,"i'll");if(base.some(b=>b===low||b.split(' ').includes(low)))jp=v[0]}
+    if(jp===undefined&&/'ll$/.test(low))jp=EN2JP[low.replace(/'ll$/,'')];
+    if(jp)out+=`<span class="enw" data-jp="${jp}">${w}</span>`;else out+=w}
+  return out}
+let POP=null;document.addEventListener('click',e=>{const w=e.target.closest('.enw');if(POP){POP.remove();POP=null}if(!w)return;POP=document.createElement('div');POP.className='pop';POP.innerHTML=`<span class="ja">${w.dataset.jp}</span>${w.textContent}`;document.body.appendChild(POP);const r=w.getBoundingClientRect();POP.style.left=Math.min(innerWidth-POP.offsetWidth-8,r.left)+'px';POP.style.top=(r.bottom+6)+'px';if(canSpeak&&!/[(\/]/.test(w.dataset.jp))speak(w.dataset.jp)});
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
   const d=document.createElement('div');d.className='card';
@@ -2238,7 +2268,7 @@ function forms(m){
     return;
   }
   const k=avail[Math.floor(Math.random()*avail.length)];const id='f:'+v[0]+':'+k;const right=f[k];
-  const head=`<div class="formq"><div class="v ja">${v[0]}</div><div class="t">make it: ${FORMS[k][0]}</div>${hintbox(`<div class="hint">${toRomaji(v[0])} = ${v[2]} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="meaning" style="font-size:17px">${esc(formMeaning(v[2],k))}</div><div class="hint">${esc(FORMS[k][1])}</div>`)}</div>${lessonBlock(k,false)}${itemStat(id)}`;
+  const head=`<div class="formq"><div class="v ja">${v[0]}</div><div class="t">make it: ${FORMS[k][0]}</div>${recipeBox(k)}${hintbox(`<div class="hint">${toRomaji(v[0])} = ${v[2]} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="meaning" style="font-size:17px">${esc(formMeaning(v[2],k))}</div><div class="hint">${esc(FORMS[k][1])}</div>`)}</div>${lessonBlock(k,false)}${itemStat(id)}`;
   const res=good=>(good?'Correct. ':`No. ${FORMS[k][0]} of ${v[0]} is `)+`<span class="ja">${right}</span> (${toRomaji(right)})${v[3]?`<div class="note">${esc(v[3])}</div>`:''}<div class="note"><b>Nearby forms:</b> ${['dict','masu','nai','ta','te','teru'].filter(x=>f[x]).map(x=>`<span class="ja">${f[x]}</span> <span class="hint">${FORMS[x][0]}</span>`).join(' · ')}</div>`;
   if(store.formMode==='type'){
     c.innerHTML=head+`<input type="text" id="inp" placeholder="type the romaji" autocomplete="off" autocapitalize="off"><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button><button class="btn" id="skip">Reveal</button></div>`;
