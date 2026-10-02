@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v3.7</title>
+<title>Kana + Vocab Trainer v3.8</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -85,6 +85,27 @@ details.hintbox summary{cursor:pointer;color:var(--ink2);font-size:13px;list-sty
 details.hintbox summary::-webkit-details-marker{display:none}
 details.hintbox[open] summary{border-color:var(--gold);color:var(--gold)}
 details.hintbox .inner{margin-top:6px}
+
+/* ---- three selector kinds: modebar (what am I doing), seg (one choice inside it), filt (multi-select filters) ---- */
+.modebar{display:flex;flex-wrap:wrap;gap:0 22px;border-bottom:1px solid var(--line);margin:0 -18px 12px;padding:0 18px}
+.modegrp{display:flex;flex-direction:column;padding:4px 0 0}
+.modegrp .glab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin-bottom:2px}
+.modegrp .gbtns{display:flex;flex-wrap:wrap}
+.modebar .chip{border:0;border-bottom:2px solid transparent;border-radius:0;margin:0;padding:6px 10px 8px;font-size:14px;color:var(--ink2);background:transparent}
+.modebar .chip.on{color:var(--ink);border-bottom-color:var(--gold);background:transparent}
+.seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.seg .seglab{font-size:13px;color:var(--ink2);min-width:72px}
+.seg .segbtns{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg .chip{border:0;border-radius:0;margin:0;padding:7px 14px;font-size:14px;color:var(--ink2);background:var(--bg)}
+.seg .chip+.chip{border-left:1px solid var(--line)}
+.seg .chip.on{background:var(--gold);color:#1a1608;font-weight:600}
+.filt{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin:8px 0}
+.filt .seglab{font-size:13px;color:var(--ink2);min-width:72px;padding-top:5px}
+.filt .fbtns{display:flex;flex-wrap:wrap;flex:1}
+.filt .chip{font-size:12px;padding:3px 9px}
+.filt .chip.on::before{content:"\2713\00a0";font-size:11px}
+.optrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.optrow .opt{font-size:18px;padding:8px 12px;flex:0 0 auto}
 .qbox{font-size:34px;text-align:center;color:var(--gold);margin:10px 0 4px;line-height:1.3}
 .ans{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
 .ans .a{font-size:24px;color:var(--gold)} .ans .ar{color:var(--ink2);font-size:14px} .ans .ae{font-size:15px}
@@ -113,7 +134,7 @@ td.r{color:var(--ink2)}
 </head>
 <body>
 <header>
-  <h1>Kana + Vocab Trainer <span>v3.7</span></h1>
+  <h1>Kana + Vocab Trainer <span>v3.8</span></h1>
   <div class="stat"><button class="btn small" id="sndBtn">Sound: on</button> Today: <b id="sOk">0</b> right / <b id="sBad">0</b> wrong | streak <b id="sStreak">0</b></div>
 </header>
 <nav id="nav">
@@ -777,9 +798,7 @@ function home(m){
 /* ---------- KANA SETTINGS ---------- */
 function kanaSettings(m,cb){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h2>What to drill</h2><div id="scr">
-   <span class="chip ${store.script==='h'?'on':''}" data-s="h">hiragana</span><span class="chip ${store.script==='k'?'on':''}" data-s="k">katakana</span><span class="chip ${store.script==='both'?'on':''}" data-s="both">both</span></div>
-   <div id="rows">${Object.keys(ROWLABEL).map(k=>`<span class="chip ${store.rows.has(k)?'on':''}" data-r="${k}">${ROWLABEL[k]}</span>`).join('')}</div>
+  d.innerHTML=`<h2>What to drill</h2><div id="scr"><div class="seg"><span class="seglab">Script</span><div class="segbtns"><span class="chip ${store.script==='h'?'on':''}" data-s="h">hiragana</span><span class="chip ${store.script==='k'?'on':''}" data-s="k">katakana</span><span class="chip ${store.script==='both'?'on':''}" data-s="both">both</span></div></div></div><div id="rows"><div class="filt"><span class="seglab">Rows</span><div class="fbtns">${Object.keys(ROWLABEL).map(k=>`<span class="chip ${store.rows.has(k)?'on':''}" data-r="${k}">${ROWLABEL[k]}</span>`).join('')}</div></div></div>
    <div class="row"><button class="btn small" id="all">All</button><button class="btn small" id="basic">Basic 46 only</button></div>`;
   d.querySelector('#scr').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.script=c.dataset.s;cb()};
   d.querySelector('#rows').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const r=c.dataset.r;store.rows.has(r)?store.rows.delete(r):store.rows.add(r);if(!store.rows.size)store.rows.add(r);cb()};
@@ -821,11 +840,7 @@ function kanatype(m){
 /* ---------- VOCAB ---------- */
 function vocabSettings(m){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h2>Words</h2><div id="vm">
-   <span class="chip ${store.vocabMode==='read'?'on':''}" data-v="read">Read: kana word, type romaji</span>
-   <span class="chip ${store.vocabMode==='mean'?'on':''}" data-v="mean">Meaning: kana word, pick the English</span>
-   <span class="chip ${store.vocabMode==='rev'?'on':''}" data-v="rev">Reverse: English, pick the kana</span></div>
-   <div id="cats">${Object.keys(CATLABEL).map(k=>`<span class="chip ${store.cats.has(k)?'on':''}" data-c="${k}">${CATLABEL[k]}</span>`).join('')}</div>`;
+  d.innerHTML=`<h2>Words</h2><div id="vm"><div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${store.vocabMode==='read'?'on':''}" data-v="read">Type the romaji</span><span class="chip ${store.vocabMode==='mean'?'on':''}" data-v="mean">Pick the English</span><span class="chip ${store.vocabMode==='rev'?'on':''}" data-v="rev">Pick the kana</span></div></div></div><div id="cats"><div class="filt"><span class="seglab">Categories</span><div class="fbtns">${Object.keys(CATLABEL).map(k=>`<span class="chip ${store.cats.has(k)?'on':''}" data-c="${k}">${CATLABEL[k]}</span>`).join('')}</div></div></div>`;
   d.querySelector('#vm').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.vocabMode=c.dataset.v;render()};
   d.querySelector('#cats').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const k=c.dataset.c;store.cats.has(k)?store.cats.delete(k):store.cats.add(k);if(!store.cats.size)store.cats.add(k);render()};
   m.appendChild(d);
@@ -854,10 +869,7 @@ function vocab(m){
 /* ---------- SENTENCES ---------- */
 function sentSettings(m){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h2>Sentences</h2><div id="sm">
-   <span class="chip ${store.sentMode==='order'?'on':''}" data-v="order">Order the tiles</span>
-   <span class="chip ${store.sentMode==='read'?'on':''}" data-v="read">Read: kana, type romaji</span>
-   <span class="chip ${store.sentMode==='build'?'on':''}" data-v="build">Write: build it in kana</span></div>
+  d.innerHTML=`<h2>Sentences</h2><div id="sm"><div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${store.sentMode==='order'?'on':''}" data-v="order">Order the tiles</span><span class="chip ${store.sentMode==='read'?'on':''}" data-v="read">Read, type romaji</span><span class="chip ${store.sentMode==='build'?'on':''}" data-v="build">Write in kana</span></div></div></div>
    <p class="hint">Everything here is kana only so you can read it. Real Japanese mixes in kanji; the sound and the word order are the same.</p>`;
   d.querySelector('#sm').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.sentMode=c.dataset.v;render()};
   m.appendChild(d);
@@ -923,10 +935,7 @@ function sent(m){
 /* ---------- TALK ---------- */
 function talk(m){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h2>Talk: they ask, you answer</h2><div id="tm">
-   <span class="chip ${store.talkMode==='answer'?'on':''}" data-v="answer">Answer freely, then compare</span>
-   <span class="chip ${store.talkMode==='build'?'on':''}" data-v="build">Build the answer from tiles</span>
-   <span class="chip ${store.talkMode==='chat'?'on':''}" data-v="chat">5-question chat</span></div>
+  d.innerHTML=`<h2>Talk: they ask, you answer</h2><div id="tm"><div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${store.talkMode==='answer'?'on':''}" data-v="answer">Answer, then compare</span><span class="chip ${store.talkMode==='build'?'on':''}" data-v="build">Build from tiles</span><span class="chip ${store.talkMode==='chat'?'on':''}" data-v="chat">5-question chat</span></div></div></div>
    <p class="hint">These are the questions you will actually get at an izakaya or on a date. Answers are written in your voice (Israel, video work, anime, solo trip). ＿＿ means fill in your own.</p>`;
   d.querySelector('#tm').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.talkMode=c.dataset.v;store.chat=null;render()};
   m.appendChild(d);
@@ -1981,8 +1990,7 @@ function romajiAny(s){const h=[...s].map(c=>{const o=c.codePointAt(0);return (o>
 function chatId(ti){return 'chat:'+TOPICS[ti].t}
 function chatHome(c){
   c.innerHTML=`<h2>Chat: one topic, a whole conversation</h2><p>Pick a topic. The other person speaks first, you answer, then compare with an answer in your voice, then the next line. 6 to 8 turns, same topic all the way. Swap roles to practice asking instead.</p>
-   <div class="row" style="margin-bottom:8px"><span class="lab">Your role</span><span class="chip ${store.chatRole!=='ask'?'on':''}" data-role="answer">I answer</span><span class="chip ${store.chatRole==='ask'?'on':''}" data-role="ask">I ask</span>
-   <span class="lab" style="margin-left:12px">Input</span><span class="chip ${store.chatInput!=='tiles'?'on':''}" data-inp="type">type / say it</span><span class="chip ${store.chatInput==='tiles'?'on':''}" data-inp="tiles">build from tiles</span></div>
+   <div class="seg"><span class="seglab">Your role</span><div class="segbtns"><span class="chip ${store.chatRole!=='ask'?'on':''}" data-role="answer">I answer</span><span class="chip ${store.chatRole==='ask'?'on':''}" data-role="ask">I ask</span></div></div><div class="seg"><span class="seglab">Input</span><div class="segbtns"><span class="chip ${store.chatInput!=='tiles'?'on':''}" data-inp="type">type / say it</span><span class="chip ${store.chatInput==='tiles'?'on':''}" data-inp="tiles">build from tiles</span></div></div>
    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${TOPICS.map((tp,i)=>{const p=PROG[chatId(i)]||{};const done=p.best||0;return `<div class="kcell" data-i="${i}" style="cursor:pointer;text-align:left;padding:8px 10px"><div style="color:var(--ink)">${esc(tp.t)}</div><div class="hint">${tp.x.length} turns · ${tp.reg==='staff'?'polite':'casual'} ${done?`· best ${done}/${tp.x.length}`:''}</div></div>`}).join('')}</div>`;
   c.onclick=e=>{const r=e.target.closest('[data-role]');if(r){store.chatRole=r.dataset.role;render();return}const inp=e.target.closest('[data-inp]');if(inp){store.chatInput=inp.dataset.inp;render();return}const t=e.target.closest('[data-i]');if(t)chatStart(+t.dataset.i)};
 }
@@ -2041,28 +2049,27 @@ function setMode(c){
   if(!store.setItems)store.setItems=setBuild(v,5);const items=store.setItems;
   const extra=shuffle(Object.keys(f).filter(k=>!items.some(it=>it.k===k))).slice(0,2).map(k=>f[k]);
   const options=shuffle(items.map(it=>it.right).concat(extra).filter((x,i,a)=>a.indexOf(x)===i));
-  c.innerHTML=`<div class="row" style="margin-bottom:8px"><span class="chip ${!typeMode?'on':''}" data-kind="choose">Choose the form</span><span class="chip ${typeMode?'on':''}" data-kind="type">Type the whole sentence</span>
-    <span style="flex:1"></span><input class="plain" id="setq" placeholder="jump to a verb (kana / romaji / English)" style="width:220px"><button class="btn small" id="setRnd">Random verb</button></div>
+  c.innerHTML=`<div class="seg"><span class="seglab">Answer by</span><div class="segbtns"><span class="chip ${!typeMode?'on':''}" data-kind="choose">Choosing the form</span><span class="chip ${typeMode?'on':''}" data-kind="type">Typing the sentence</span></div></div><div class="row" style="margin-bottom:8px"><span class="seglab hint" style="min-width:72px">Verb</span><input class="plain" id="setq" placeholder="jump to a verb (kana / romaji / English)" style="width:240px"><button class="btn small" id="setRnd">Random verb</button></div>
    <div class="formq"><div class="v ja">${v[0]}</div><div class="hint">${toRomaji(v[0])} = ${esc(v[2])} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="t">${typeMode?'Type each sentence in romaji, with the verb in the right form':'Pick the right form of '+v[0]+' for each sentence'}</div></div>
-   ${typeMode?'':`<div class="hint" style="text-align:center;margin-bottom:6px">Options (two are decoys): <span class="ja" style="color:var(--gold);font-size:18px">${options.join('　')}</span></div>`}
+   
    <table class="ftable" id="setT">${items.map((it,i)=>`<tr><td class="fl" style="width:24px">${i+1}</td><td>
      <div>${esc(it.en)}</div>
      ${typeMode?`<div class="hint">(${FORMS[it.k][0]})</div><input type="text" class="setinp" data-i="${i}" placeholder="romaji" autocomplete="off" autocapitalize="off" style="font-size:16px;text-align:left;margin-top:4px">`
-     :`<div class="ja" style="font-size:22px;color:var(--gold)">${it.jp}</div><select class="setsel" data-i="${i}" style="font-size:18px;margin-top:4px"><option value="">choose</option>${options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`}
+     :`<div class="ja" style="font-size:22px;color:var(--gold)">${it.jp}</div><div class="optrow" data-row="${i}">${options.map(o=>`<button class="opt ja" data-o="${o}">${o}</button>`).join('')}</div>`}
      <div class="setfb hint" data-i="${i}"></div></td></tr>`).join('')}</table>
    <div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check all <span class="keyhint">Enter</span></button><button class="btn" id="setNew">New set, same verb</button></div>`;
+  let done=false;
   const pick=vi=>{store.setV=vi;store.setItems=null;render()};
   c.querySelector('#setRnd').onclick=()=>pick(Math.floor(Math.random()*VERBALL.length));
   c.querySelector('#setNew').onclick=()=>{store.setItems=null;render()};
   const q=c.querySelector('#setq');q.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const hit=VERBALL.findIndex(x=>vcMatch(x,q.value));if(hit>=0)pick(hit);else q.style.borderColor='var(--bad)'}};
-  c.onclick=e=>{const k=e.target.closest('[data-kind]');if(k){store.setKind=k.dataset.kind;store.setItems=null;render()}const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};
-  let done=false;
+  c.onclick=e=>{const k=e.target.closest('[data-kind]');if(k){store.setKind=k.dataset.kind;store.setItems=null;render();return}const ob=e.target.closest('.optrow .opt');if(ob&&!done){sfxTap();ob.parentNode.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));ob.classList.add('sel');return}const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};
   c.querySelector('#chk').onclick=()=>{if(done)return;let ok=0;
     items.forEach((it,i)=>{let good;const fb=c.querySelector(`.setfb[data-i="${i}"]`);
       if(typeMode){const inp=c.querySelector(`.setinp[data-i="${i}"]`);const val=inp.value.trim();if(!val)return;const want=romajiAny(it.full);good=romMatch(val.replace(/[.,?!]/g,''),want.replace(/[.,?!]/g,''));inp.style.borderColor=good?'var(--ok)':'var(--bad)';fb.innerHTML=`<span class="ja" data-say="${it.full.replace(/ /g,'')}" style="cursor:pointer;color:${good?'var(--ok)':'var(--bad)'}">${it.full}</span> <span class="hint">${want}</span>`}
-      else{const sel=c.querySelector(`.setsel[data-i="${i}"]`);if(!sel.value)return;good=sel.value===it.right;sel.style.borderColor=good?'var(--ok)':'var(--bad)';fb.innerHTML=`<span class="ja" data-say="${it.full.replace(/ /g,'')}" style="cursor:pointer;color:${good?'var(--ok)':'var(--bad)'}">${it.full}</span> <span class="hint">${romajiAny(it.full)} · ${FORMS[it.k][0]}</span>`}
+      else{const row=c.querySelector(`.optrow[data-row="${i}"]`);const sel=row.querySelector('.opt.sel');if(!sel)return;good=sel.dataset.o===it.right;sel.classList.remove('sel');sel.classList.add(good?'ok':'bad');if(!good)row.querySelectorAll('.opt').forEach(x=>{if(x.dataset.o===it.right)x.classList.add('ok')});fb.innerHTML=`<span class="ja" data-say="${it.full.replace(/ /g,'')}" style="cursor:pointer;color:${good?'var(--ok)':'var(--bad)'}">${it.full}</span> <span class="hint">${romajiAny(it.full)} · ${FORMS[it.k][0]}</span>`}
       if(good===undefined)return;mark('f:'+v[0]+':'+it.k,good);if(good)ok++});
-    const answered=items.filter((it,i)=>typeMode?c.querySelector(`.setinp[data-i="${i}"]`).value.trim():c.querySelector(`.setsel[data-i="${i}"]`).value).length;
+    const answered=items.filter((it,i)=>typeMode?c.querySelector(`.setinp[data-i="${i}"]`).value.trim():c.querySelector(`.optrow[data-row="${i}"] .opt.sel, .optrow[data-row="${i}"] .opt.ok, .optrow[data-row="${i}"] .opt.bad`)).length;
     if(answered<items.length){c.querySelector('#fb').textContent=`Fill in all ${items.length} first (${answered} done)`;return}
     done=true;const fb=c.querySelector('#fb');fb.className='feedback '+(ok===items.length?'ok':'bad');fb.textContent=`${ok} / ${items.length}`;if(ok===items.length)sfxStreak();else if(ok>=3)sfxOk();else sfxBad();
     const row=c.querySelector('.row.actions');row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next verb <span class="keyhint">Enter</span>';nb.onclick=()=>pick((store.setV+1)%VERBALL.length);row.appendChild(nb);const ag=document.createElement('button');ag.className='btn';ag.textContent='Again, same verb';ag.onclick=()=>{store.setItems=null;render()};row.appendChild(ag);nb.focus()};
@@ -2072,18 +2079,11 @@ function setMode(c){
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h2>Forms: how endings change (katsuyou)</h2><div id="fm">
-   <span class="chip ${store.formMode==='vcourse'?'on':''}" data-v="vcourse">Verb course (start here)</span>
-   <span class="chip ${store.formMode==='set'?'on':''}" data-v="set">Sets: one verb, five sentences</span>
-   <span class="chip ${store.formMode==='course'?'on':''}" data-v="course">By form</span>
-   <span class="chip ${store.formMode==='drill'?'on':''}" data-v="drill">Drill: make the form</span>
-   <span class="chip ${store.formMode==='type'?'on':''}" data-v="type">Drill: type it</span>
-   <span class="chip ${store.formMode==='name'?'on':''}" data-v="name">Reverse: name the form</span>
-   <span class="chip ${store.formMode==='adj'?'on':''}" data-v="adj">Adjectives</span>
-   <span class="chip ${store.formMode==='table'?'on':''}" data-v="table">Tables</span>
-   <span class="chip ${store.formMode==='rules'?'on':''}" data-v="rules">Rules</span>
-   <span class="chip ${store.formMode==='lessons'?'on':''}" data-v="lessons">All lessons (read only)</span></div>
-   ${['drill','type','name'].includes(store.formMode)?`<div id="fs" style="margin-top:6px">${FORM_KEYS.map(k=>`<span class="chip ${store.formSet.has(k)?'on':''}" data-f="${k}">${FORMS[k][0]}</span>`).join('')}</div><div class="row"><button class="btn small" id="fall">All forms</button><button class="btn small" id="fbasic">Basic 6</button></div>`:''}`;
+  d.innerHTML=`<h2>Forms: how endings change (katsuyou)</h2><div id="fm" class="modebar">
+   <div class="modegrp"><span class="glab">Learn</span><div class="gbtns"><span class="chip ${store.formMode==='vcourse'?'on':''}" data-v="vcourse">Verb course</span><span class="chip ${store.formMode==='course'?'on':''}" data-v="course">By form</span><span class="chip ${store.formMode==='lessons'?'on':''}" data-v="lessons">All lessons</span><span class="chip ${store.formMode==='rules'?'on':''}" data-v="rules">Rules</span></div></div>
+   <div class="modegrp"><span class="glab">Practice</span><div class="gbtns"><span class="chip ${store.formMode==='set'?'on':''}" data-v="set">Sets</span><span class="chip ${store.formMode==='drill'?'on':''}" data-v="drill">Make the form</span><span class="chip ${store.formMode==='type'?'on':''}" data-v="type">Type it</span><span class="chip ${store.formMode==='name'?'on':''}" data-v="name">Name the form</span><span class="chip ${store.formMode==='adj'?'on':''}" data-v="adj">Adjectives</span></div></div>
+   <div class="modegrp"><span class="glab">Reference</span><div class="gbtns"><span class="chip ${store.formMode==='table'?'on':''}" data-v="table">Tables</span></div></div></div>
+   ${['drill','type','name'].includes(store.formMode)?`<div id="fs"><div class="filt"><span class="seglab">Forms in play</span><div class="fbtns">${FORM_KEYS.map(k=>`<span class="chip ${store.formSet.has(k)?'on':''}" data-f="${k}">${FORMS[k][0]}</span>`).join('')}</div></div></div><div class="row"><button class="btn small" id="fall">All forms</button><button class="btn small" id="fbasic">Basic 6</button></div>`:''}`;
   d.querySelector('#fm').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.formMode=c.dataset.v;store.lesson=null;store.vc=null;render()};
   const fs=d.querySelector('#fs');if(fs){fs.onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const k=c.dataset.f;store.formSet.has(k)?store.formSet.delete(k):store.formSet.add(k);if(store.formSet.size<2)store.formSet.add(k);render()};
     d.querySelector('#fall').onclick=()=>{store.formSet=new Set(FORM_KEYS);render()};d.querySelector('#fbasic').onclick=()=>{store.formSet=new Set(['dict','masu','nai','masen','ta','mashita']);render()}}
@@ -2181,8 +2181,8 @@ function test(m){
     const d=document.createElement('div');d.className='card';
     const best=sec=>{const r=TESTS.filter(t=>t.sec===sec);if(!r.length)return '';const b=Math.max(...r.map(t=>Math.round(100*t.ok/t.n)));return ` <span class="hint">best ${b}%</span>`};
     d.innerHTML=`<h2>Test yourself</h2><p>No hints, no reveal, no listen button until you have answered. A score at the end, and every miss listed so you can go drill it.</p>
-     <div id="secs">${Object.keys(SECS).map(k=>`<span class="chip ${store.testSec===k?'on':''}" data-s="${k}">${SECS[k]}${best(k)}</span>`).join('')}</div>
-     <p style="margin-top:10px"><span class="lab">Length</span> ${[10,20,30,50].map(n=>`<span class="chip ${store.testN===n?'on':''}" data-n="${n}">${n}</span>`).join('')}</p>
+     <div id="secs"><div class="filt"><span class="seglab">Section</span><div class="fbtns">${Object.keys(SECS).map(k=>`<span class="chip ${store.testSec===k?'on':''}" data-s="${k}">${SECS[k]}${best(k)}</span>`).join('')}</div></div></div>
+     <div class="seg"><span class="seglab">Length</span><div class="segbtns">${[10,20,30,50].map(n=>`<span class="chip ${store.testN===n?'on':''}" data-n="${n}">${n}</span>`).join('')}</div></div>
      <div class="row"><button class="btn gold" id="start">Start <span class="keyhint">Enter</span></button></div>`;
     d.querySelector('#secs').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.testSec=c.dataset.s;render()};
     d.onclick=e=>{const c=e.target.closest('[data-n]');if(c){store.testN=+c.dataset.n;render()}};
@@ -2230,7 +2230,7 @@ function test(m){
 /* ---------- WRITING ---------- */
 function write(m){
   const d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h2>Write from memory</h2><div id="wm"><span class="chip ${store.wmode!=='word'?'on':''}" data-w="kana">Single kana</span><span class="chip ${store.wmode==='word'?'on':''}" data-w="word">Whole word</span></div>`;
+  d.innerHTML=`<h2>Write from memory</h2><div id="wm"><div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${store.wmode!=='word'?'on':''}" data-w="kana">Single kana</span><span class="chip ${store.wmode==='word'?'on':''}" data-w="word">Whole word</span></div></div></div>`;
   d.querySelector('#wm').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;store.wmode=c.dataset.w;render()};
   m.appendChild(d);
   let target,label,id;
