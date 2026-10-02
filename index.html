@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v4.4</title>
+<title>Kana + Vocab Trainer v4.5</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -154,7 +154,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v4.4 visual pass: ink, paper, motion (no libraries) ---- */
+/* ---- v4.5 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -206,7 +206,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.4</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.5</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -224,7 +224,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
     <button data-m="write"><span class="ico">筆</span><span class="lbl">Write</span></button>
     <button data-m="ref"><span class="ico">表</span><span class="lbl">Tables</span></button>
   </nav>
-  <div class="sidefoot"><button class="btn small" id="sndBtn">Sound: on</button><div class="stat">Today <b id="sOk">0</b> right · <b id="sBad">0</b> wrong<br>streak <b id="sStreak">0</b></div></div>
+  <div class="sidefoot"><button class="btn small" id="sndBtn">Sound: on</button><div class="stat" id="voiceStat"></div><div class="stat">Today <b id="sOk">0</b> right · <b id="sBad">0</b> wrong<br>streak <b id="sStreak">0</b></div></div>
 </aside>
 <main id="main"></main>
 </div>
@@ -739,7 +739,7 @@ const REGLABEL={casual:'casual, with friends',staff:'with staff, polite but natu
 const STRIP=/[、。？！ ]/g;
 
 /* ---------- STATE ---------- */
-const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
+const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',setGrp:'all',chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
 let PROG={};
 try{PROG=JSON.parse(localStorage.getItem('kvt_prog')||'{}')}catch(e){PROG={}}
 function save(){try{localStorage.setItem('kvt_prog',JSON.stringify(PROG))}catch(e){}}
@@ -795,7 +795,7 @@ async function speak(t){
   if(VOICE.provider!=='none'&&VOICE.key){
     try{let url=AUDIO_CACHE.get(t);if(!url){const b=await fetchCloud(t);url=URL.createObjectURL(b);AUDIO_CACHE.set(t,url)}
       if(curAudio){curAudio.pause()}curAudio=new Audio(url);curAudio.play();return}
-    catch(e){console.warn('cloud TTS failed, falling back',e);const el=document.getElementById('ttsErr');if(el)el.textContent='Cloud voice failed ('+e.message+'), using browser voice.'}
+    catch(e){console.warn('cloud TTS failed, falling back',e);voiceToast('Cloud voice failed: '+e.message+'. Using the browser voice. Check the key in Home > Voice.');const el=document.getElementById('ttsErr');if(el)el.textContent='Cloud voice failed ('+e.message+'), using browser voice.'}
   }
   speakBrowser(t);
 }
@@ -813,16 +813,19 @@ function voiceSettingsCard(){
   <p><span class="lab">Model</span> <select id="vmodel"><optgroup label="OpenAI"><option value="gpt-4o-mini-tts-2025-12-15" ${VOICE.oaModel==='gpt-4o-mini-tts-2025-12-15'?'selected':''}>gpt-4o-mini-tts (Dec 2025 snapshot, newest)</option><option value="tts-1-hd" ${VOICE.oaModel==='tts-1-hd'?'selected':''}>tts-1-hd (older)</option></optgroup><optgroup label="ElevenLabs"><option value="eleven_v3" ${VOICE.elModel==='eleven_v3'?'selected':''}>Eleven v3 (newest, most expressive)</option><option value="eleven_multilingual_v2" ${VOICE.elModel==='eleven_multilingual_v2'?'selected':''}>Multilingual v2 (older)</option></optgroup></select></p>
   <p><span class="lab">Voice</span> <input class="plain" id="vvoice" value="${esc(VOICE.voice)}" placeholder="OpenAI: nova, alloy, echo, shimmer. ElevenLabs: voice ID" style="width:260px"></p>
   <div class="row"><button class="btn gold" id="vsave">Save</button><button class="btn" id="vtest2">Test cloud voice</button><span class="hint" id="ttsErr"></span></div>
-  <p class="hint">The key stays in this browser only and is sent straight to the provider. Audio is cached per sentence for the session, so repeats are free. On OpenAI the name "mini" is misleading: gpt-4o-mini-tts is their newest and best text-to-speech model (tts-1-hd is the old one), and the Dec 2025 snapshot is pinned here. On ElevenLabs, Eleven v3 is the current flagship and does Japanese natively.</p>`;
+  <p class="hint">Settings are saved per browser and per address: the local file and the GitHub URL keep separate voice settings, so set the key once in each. The key stays in this browser only and is sent straight to the provider. Audio is cached per sentence for the session, so repeats are free. On OpenAI the name "mini" is misleading: gpt-4o-mini-tts is their newest and best text-to-speech model (tts-1-hd is the old one), and the Dec 2025 snapshot is pinned here. On ElevenLabs, Eleven v3 is the current flagship and does Japanese natively.</p>`;
   const sel=d.querySelector('#vsel');fillVoiceSel(sel);
-  sel.onchange=()=>{VOICE.name=sel.value;saveVoice()};d.querySelector('#vall').onchange=e=>{VOICE.showAll=e.target.checked;saveVoice();fillVoiceSel(sel)};
+  sel.onchange=()=>{VOICE.name=sel.value;saveVoice();voiceStat()};d.querySelector('#vall').onchange=e=>{VOICE.showAll=e.target.checked;saveVoice();fillVoiceSel(sel)};
   const rate=d.querySelector('#vrate');rate.oninput=()=>{VOICE.rate=+rate.value;d.querySelector('#vrateV').textContent=rate.value;saveVoice()};
   d.querySelector('#vtest').onclick=()=>speakBrowser('とりあえずビールで。めっちゃうまい！');
-  d.querySelector('#vsave').onclick=()=>{VOICE.provider=d.querySelector('#vprov').value;VOICE.key=d.querySelector('#vkey').value.trim();VOICE.voice=d.querySelector('#vvoice').value.trim();const mv=d.querySelector('#vmodel').value;if(mv.startsWith('eleven'))VOICE.elModel=mv;else VOICE.oaModel=mv;saveVoice();AUDIO_CACHE.clear();d.querySelector('#ttsErr').textContent='Saved.';sfxOk()};
+  d.querySelector('#vsave').onclick=()=>{VOICE.provider=d.querySelector('#vprov').value;VOICE.key=d.querySelector('#vkey').value.trim();VOICE.voice=d.querySelector('#vvoice').value.trim();const mv=d.querySelector('#vmodel').value;if(mv.startsWith('eleven'))VOICE.elModel=mv;else VOICE.oaModel=mv;saveVoice();voiceStat();AUDIO_CACHE.clear();d.querySelector('#ttsErr').textContent='Saved.';sfxOk()};
   d.querySelector('#vtest2').onclick=()=>{d.querySelector('#vsave').click();d.querySelector('#ttsErr').textContent='Fetching...';speak('とりあえずビールで。めっちゃうまい！').then(()=>{if(d.querySelector('#ttsErr').textContent==='Fetching...')d.querySelector('#ttsErr').textContent='Playing.'})};
   return d;
 }
 const canSpeak=('speechSynthesis' in window);
+let VT=null;function voiceToast(msg){if(VT)VT.remove();VT=document.createElement('div');VT.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:80;background:var(--panel2);border:1px solid var(--bad);color:var(--ink);padding:10px 14px;border-radius:10px;font-size:13px;max-width:90vw';VT.textContent=msg;document.body.appendChild(VT);setTimeout(()=>{if(VT){VT.remove();VT=null}},6000)}
+function voiceStat(){const el=document.getElementById('voiceStat');if(!el)return;if(VOICE.provider!=='none'&&VOICE.key)el.innerHTML=`Voice: <b>${VOICE.provider==='openai'?'OpenAI':'ElevenLabs'}</b> · ${VOICE.voice||'default'}`;else{const v=bestVoice();el.innerHTML=`Voice: <b>browser</b> · ${v?v.name.replace(/Microsoft |Google /,''):'none'}`}}
+voiceStat();if('speechSynthesis' in window)speechSynthesis.addEventListener('voiceschanged',voiceStat);
 document.getElementById('sndBtn').onclick=e=>{store.sound=!store.sound;e.target.textContent='Sound: '+(store.sound?'on':'off');if(store.sound)sfxOk()};
 
 /* result flow: shows feedback, plays sound, replaces action row with Next */
@@ -856,7 +859,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.4</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.5</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -2126,12 +2129,13 @@ function hintbox(inner,label){return `<details class="hintbox"><summary>${label|
 function setBuild(v,n){const f=conj(v);const skipS=new Set(['te','tekudasai','vol','mashou','nakya','nakereba','pot','potmasu','tai','taidesu','takunai','takunaidesu']);const keys=shuffle(Object.keys(f).filter(k=>enFor(v,k)&&!(v[6]==='S'&&skipS.has(k)))).slice(0,n);
   return keys.map(k=>{const fr=v[5][Math.floor(Math.random()*3)];const [pre,enT]=enFor(v,k);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');let en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());if(/alone together/.test(en)){en=en.replace(' alone together',' together')};return {k,jp,en,right:f[k],full:jp.replace('＿＿',f[k])}})}
 function setMode(c){
-  if(!store.setV){const pool=VERBALL.map((v,i)=>i);store.setV=pool[Math.floor(Math.random()*pool.length)];store.setItems=null}
+  const setPool=()=>VERBALL.map((v,i)=>i).filter(i=>store.setGrp==='all'||VC_GROUP(VERBALL[i])===+store.setGrp);
+  if(store.setV==null||!setPool().includes(store.setV)){const pool=setPool();store.setV=pool[Math.floor(Math.random()*pool.length)];store.setItems=null}
   const v=VERBALL[store.setV];const f=conj(v);const typeMode=store.setKind==='type';
   if(!store.setItems)store.setItems=setBuild(v,5);const items=store.setItems;
   const extra=shuffle(Object.keys(f).filter(k=>!items.some(it=>it.k===k))).slice(0,2).map(k=>f[k]);
   const options=shuffle(items.map(it=>it.right).concat(extra).filter((x,i,a)=>a.indexOf(x)===i));
-  c.innerHTML=`<div class="seg"><span class="seglab">Answer by</span><div class="segbtns"><span class="chip ${!typeMode?'on':''}" data-kind="choose">Choosing the form</span><span class="chip ${typeMode?'on':''}" data-kind="type">Typing the sentence</span></div></div><div class="row" style="margin-bottom:8px"><span class="seglab hint" style="min-width:72px">Verb</span><input class="plain" id="setq" placeholder="jump to a verb (kana / romaji / English)" style="width:240px"><button class="btn small" id="setRnd">Random verb</button></div>
+  c.innerHTML=`<div class="seg"><span class="seglab">Verbs</span><div class="segbtns"><span class="chip ${store.setGrp==='all'?'on':''}" data-grp="all">All</span><span class="chip ${store.setGrp==='1'?'on':''}" data-grp="1">ru-verbs</span><span class="chip ${store.setGrp==='2'?'on':''}" data-grp="2">u-verbs</span><span class="chip ${store.setGrp==='0'?'on':''}" data-grp="0">Irregular</span></div></div><div class="seg"><span class="seglab">Answer by</span><div class="segbtns"><span class="chip ${!typeMode?'on':''}" data-kind="choose">Choosing the form</span><span class="chip ${typeMode?'on':''}" data-kind="type">Typing the sentence</span></div></div><div class="row" style="margin-bottom:8px"><span class="seglab hint" style="min-width:72px">Verb</span><input class="plain" id="setq" placeholder="jump to a verb (kana / romaji / English)" style="width:240px"><button class="btn small" id="setRnd">Random verb</button></div>
    <div class="formq"><div class="v ja">${v[0]}</div><div class="hint">${toRomaji(v[0])} = ${esc(v[2])} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="t">${typeMode?'Type each sentence in romaji, with the verb in the right form':'Pick the right form of '+v[0]+' for each sentence'}</div></div>
    
    <table class="ftable" id="setT">${items.map((it,i)=>`<tr><td class="fl" style="width:24px">${i+1}</td><td>
@@ -2142,10 +2146,10 @@ function setMode(c){
    <div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check all <span class="keyhint">Enter</span></button><button class="btn" id="setNew">New set, same verb</button></div>`;
   let done=false;
   const pick=vi=>{store.setV=vi;store.setItems=null;render()};
-  c.querySelector('#setRnd').onclick=()=>pick(Math.floor(Math.random()*VERBALL.length));
+  c.querySelector('#setRnd').onclick=()=>{const p=setPool();pick(p[Math.floor(Math.random()*p.length)])};
   c.querySelector('#setNew').onclick=()=>{store.setItems=null;render()};
-  const q=c.querySelector('#setq');q.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const hit=VERBALL.findIndex(x=>vcMatch(x,q.value));if(hit>=0)pick(hit);else q.style.borderColor='var(--bad)'}};
-  c.onclick=e=>{const k=e.target.closest('[data-kind]');if(k){store.setKind=k.dataset.kind;store.setItems=null;render();return}const ob=e.target.closest('.optrow .opt');if(ob&&!done){sfxTap();ob.parentNode.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));ob.classList.add('sel');return}const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};
+  const q=c.querySelector('#setq');q.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const hit=VERBALL.findIndex(x=>vcMatch(x,q.value));if(hit>=0){store.setGrp='all';pick(hit)}else q.style.borderColor='var(--bad)'}};
+  c.onclick=e=>{const g=e.target.closest('[data-grp]');if(g){store.setGrp=g.dataset.grp;store.setV=null;store.setItems=null;render();return}const k=e.target.closest('[data-kind]');if(k){store.setKind=k.dataset.kind;store.setItems=null;render();return}const ob=e.target.closest('.optrow .opt');if(ob&&!done){sfxTap();ob.parentNode.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));ob.classList.add('sel');return}const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};
   c.querySelector('#chk').onclick=()=>{if(done)return;let ok=0;
     items.forEach((it,i)=>{let good;const fb=c.querySelector(`.setfb[data-i="${i}"]`);
       if(typeMode){const inp=c.querySelector(`.setinp[data-i="${i}"]`);const val=inp.value.trim();if(!val)return;const want=romajiAny(it.full);good=sentenceMatch(val,it.full,v);inp.style.borderColor=good?'var(--ok)':'var(--bad)';fb.innerHTML=`<span class="ja" data-say="${it.full.replace(/ /g,'')}" style="cursor:pointer;color:${good?'var(--ok)':'var(--bad)'}">${it.full}</span> <span class="hint">${want}</span><div class="hint">with kanji: <span class="ja">${kanjify(it.full,v)}</span></div>`}
@@ -2154,7 +2158,7 @@ function setMode(c){
     const answered=items.filter((it,i)=>typeMode?c.querySelector(`.setinp[data-i="${i}"]`).value.trim():c.querySelector(`.optrow[data-row="${i}"] .opt.sel, .optrow[data-row="${i}"] .opt.ok, .optrow[data-row="${i}"] .opt.bad`)).length;
     if(answered<items.length){c.querySelector('#fb').textContent=`Fill in all ${items.length} first (${answered} done)`;return}
     done=true;const fb=c.querySelector('#fb');fb.className='feedback '+(ok===items.length?'ok':'bad');fb.textContent=`${ok} / ${items.length}`;if(ok===items.length)sfxStreak();else if(ok>=3)sfxOk();else sfxBad();
-    const row=c.querySelector('.row.actions');row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next verb <span class="keyhint">Enter</span>';nb.onclick=()=>pick((store.setV+1)%VERBALL.length);row.appendChild(nb);const ag=document.createElement('button');ag.className='btn';ag.textContent='Again, same verb';ag.onclick=()=>{store.setItems=null;render()};row.appendChild(ag);nb.focus()};
+    const row=c.querySelector('.row.actions');row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next verb <span class="keyhint">Enter</span>';nb.onclick=()=>{const p=setPool();const i=p.indexOf(store.setV);pick(p[(i+1)%p.length])};row.appendChild(nb);const ag=document.createElement('button');ag.className='btn';ag.textContent='Again, same verb';ag.onclick=()=>{store.setItems=null;render()};row.appendChild(ag);nb.focus()};
   if(typeMode){const first=c.querySelector('.setinp');if(first)first.focus()}
 }
 
