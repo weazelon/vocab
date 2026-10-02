@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v5.0</title>
+<title>Kana + Vocab Trainer v5.3</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -129,6 +129,9 @@ details.hintbox .inner{margin-top:6px}
 .enw:hover{color:var(--gold)}
 .pop{position:fixed;z-index:70;background:var(--panel2);border:1px solid var(--gold);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:260px;pointer-events:none}
 .pop .ja{color:var(--gold);font-size:20px;display:block}
+.callbar{position:sticky;bottom:0;background:var(--panel);padding:10px 0 4px;margin-top:8px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;z-index:4}
+.callbar .actions{margin:0;flex:1}
+@media(max-width:900px){.callbar{bottom:84px}}
 .qbox{font-size:34px;text-align:center;color:var(--gold);margin:10px 0 4px;line-height:1.3}
 .ans{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
 .ans .a{font-size:24px;color:var(--gold)} .ans .ar{color:var(--ink2);font-size:14px} .ans .ae{font-size:15px}
@@ -154,7 +157,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v5.0 visual pass: ink, paper, motion (no libraries) ---- */
+/* ---- v5.3 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -206,7 +209,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.0</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.3</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -765,6 +768,11 @@ function tone(f,d,t,type,g){if(!store.sound)return;t=t||0;type=type||'sine';g=g|
 function sfxOk(){tone(659,.14);tone(988,.2,.1)}
 function sfxBad(){tone(196,.22,0,'triangle',.07)}
 function sfxTap(){tone(540,.05,0,'sine',.04)}
+function sfxRing(){return new Promise(res=>{if(!store.sound){setTimeout(res,600);return}
+  // soft Japanese-style ring: two short 400 Hz pulses, twice, quiet
+  let t=0;for(let r=0;r<2;r++){for(let p=0;p<2;p++){tone(400,.22,t,'sine',.05);tone(440,.22,t,'sine',.03);t+=.3}t+=.5}
+  tone(660,.12,t,'sine',.05);setTimeout(res,(t+.2)*1000)})}
+function sfxHangup(){if(!store.sound)return;tone(520,.09,0,'sine',.05);tone(380,.14,.1,'sine',.045)}
 function sfxStreak(){[523,659,784,1047].forEach((f,i)=>tone(f,.16,i*.075,'sine',.09))}
 /* voice settings: browser voice picker + optional cloud TTS with your own key */
 let VOICE={name:'',rate:0.9,provider:'none',key:'',voice:'',oaModel:'gpt-4o-mini-tts-2025-12-15',elModel:'eleven_v3'};
@@ -860,7 +868,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.0</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.3</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -2118,7 +2126,7 @@ function chatRun(c){
     ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();const b=c.querySelector('#chk:not([disabled])')||c.querySelector('#nextBtn');if(b)b.click()}};
   }
 }
-function speakAwait(t){return new Promise(res=>{t=t.replace(/[ ＿]/g,'');if(VOICE.provider!=='none'&&VOICE.key){speak(t).then(()=>{if(curAudio){curAudio.onended=res;curAudio.onerror=res;setTimeout(res,20000)}else res()});return}
+function speakAwait(t){return new Promise(res=>{t=t.replace(/[ ＿]/g,'');if(VOICE.provider!=='none'&&VOICE.key){speak(t).then(()=>{if(curAudio){curAudio.onended=res;curAudio.onerror=res;setTimeout(res,20000)}else{try{const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=bestVoice();if(v)u.voice=v;u.onend=res;u.onerror=res;speechSynthesis.speak(u)}catch(e){res()}}});return}
   if(!('speechSynthesis' in window)){res();return}try{const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=VOICE.rate;const v=bestVoice();if(v)u.voice=v;u.onend=res;u.onerror=res;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){res()}})}
 function chat(m){const c=document.createElement('div');c.className='card';m.appendChild(c);if(store.chat2)chatRun(c);else chatHome(c)}
 
@@ -2276,8 +2284,8 @@ function callRun(c){
   const logHtml=()=>S.log.map(l=>`<div style="margin:6px 0;${l.me?'text-align:right':''}"><span style="display:inline-block;max-width:80%;padding:8px 12px;border-radius:12px;background:${l.me?'var(--gold)':'var(--panel2)'};color:${l.me?'#1a1608':'var(--ink)'}"><span class="ja" style="font-size:18px">${l.jp}</span><div class="hint" style="color:${l.me?'#4a4020':'var(--ink2)'}">${romajiAny(l.jp)}</div>${l.en?`<div class="hint" style="color:${l.me?'#4a4020':'var(--ink2)'}">${esc(l.en)}</div>`:''}</span></div>`).join('');
   const head=`<div class="pagehead"><button class="back" id="hang">Hang up</button><div><h1>${S.kind==='script'?esc(TOPICS[S.ti].t):esc(S.persona.name)}</h1><div class="sub">${S.kind==='script'?`turn ${S.i+1} of ${TOPICS[S.ti].x.length}`:esc(S.persona.place)+' · '+CALL_LEVELS[store.callLevel||1].name+(store.callFocus&&store.callFocus!=='none'?' · '+CALL_FOCUS[store.callFocus].name:'')}</div></div></div>`;
   c.innerHTML=head+`<div id="log" style="min-height:120px">${logHtml()}</div><div id="status" class="hint" style="text-align:center;margin:8px 0"></div><div id="heard" class="ja" style="text-align:center;min-height:28px;color:var(--gold);font-size:20px"></div>
-   <div class="row actions" id="act"></div><div id="aid"></div>`;
-  c.querySelector('#hang').onclick=()=>endCall(c);
+   <div class="callbar"><div class="row actions" id="act"></div><button class="btn" id="hang3" style="border-color:var(--bad);color:var(--bad)">Hang up</button></div><div id="aid"></div>`;
+  c.querySelector('#hang').onclick=()=>endCall(c);c.querySelector('#hang3').onclick=()=>endCall(c);
   const act=c.querySelector('#act'),status=c.querySelector('#status'),heard=c.querySelector('#heard');
   const say=async t=>{status.textContent='…';await speakAwait(t);status.textContent=''};
   const askUser=(onAnswer)=>{act.innerHTML='';if(mic){const b=document.createElement('button');b.className='btn gold';b.innerHTML='Hold to talk';let rec=null;const start=e=>{e.preventDefault();heard.textContent='';b.textContent='Listening… release to send';rec=listenOnce(t=>{b.textContent='Hold to talk';onAnswer(t)},err=>{b.textContent='Hold to talk';status.textContent=err==='nothing heard'?'Nothing heard, try again':'Mic: '+err})};const stop=()=>{if(rec){try{rec.stop()}catch(e){}}};b.onpointerdown=start;b.onpointerup=stop;b.onpointerleave=stop;act.appendChild(b)}
@@ -2285,7 +2293,7 @@ function callRun(c){
     const rep=document.createElement('button');rep.className='btn';rep.textContent='Say it again';rep.onclick=()=>{const last=[...S.log].reverse().find(l=>!l.me);if(last)say(last.jp.replace(/ /g,''))};act.appendChild(rep);
     const hint=document.createElement('button');hint.className='btn';hint.textContent='Help';hint.onclick=()=>{const h=c.querySelector('#aid');if(S.kind==='script'){const x=TOPICS[S.ti].x[S.i];h.innerHTML=`<div class="ans"><div class="hint">one way to answer</div><div class="a ja">${x[2]}</div><div class="ar">${romajiAny(x[2])}</div><div class="ae">${esc(x[3])}</div></div>`}else{h.innerHTML=`<div class="ans"><div class="hint">useful</div><div class="a ja" style="font-size:16px">もう いっかい いって？ · ゆっくり おねがい · わからない · そう そう</div><div class="ar">say it again? · slowly please · I don't get it · yeah yeah</div></div>`}};act.appendChild(hint)};
   if(S.kind==='script'){const tp=TOPICS[S.ti];if(S.i>=tp.x.length){endCall(c);return}const x=tp.x[S.i];
-    if(!S.log.length||S.log[S.log.length-1].me){S.log.push({jp:x[0],en:x[1]});c.querySelector('#log').innerHTML=logHtml();say(x[0].replace(/ /g,''))}
+    if(!S.log.length||S.log[S.log.length-1].me){S.log.push({jp:x[0],en:x[1]});c.querySelector('#log').innerHTML=logHtml();(S.log.length===1?sfxRing():Promise.resolve()).then(()=>say(x[0].replace(/ /g,'')))}
     askUser(ans=>{const kana=/[぀-ヿ]/.test(ans);const mine=kana?ans:ans;const want=romajiAny(x[2]).replace(/[.,?!\s]/g,'');const got=(kana?romajiAny(ans):ans).replace(/[.,?!\s]/g,'').toLowerCase();
       const good=romMatch(got,want)||[...TOPICS[S.ti].x].some(y=>romMatch(got,romajiAny(y[2]).replace(/[.,?!\s]/g,'')))||got.length>=4&&want.includes(got.slice(0,4));
       S.log.push({me:true,jp:ans,en:good?'':'expected: '+x[3]});if(good){S.ok++;sfxOk()}else sfxBad();mark('call:'+tp.t+':'+S.i,good);S.i++;render()});
@@ -2296,7 +2304,7 @@ function callRun(c){
     if(!S.msgs.length)go();else askUser(go);
   }
 }
-async function endCall(c){const S=store.call;if(!S)return;const n=S.log.filter(l=>l.me).length;
+async function endCall(c){const S=store.call;if(!S)return;sfxHangup();if(curAudio){try{curAudio.pause()}catch(e){}}if('speechSynthesis' in window)speechSynthesis.cancel();const n=S.log.filter(l=>l.me).length;
   c.innerHTML=`<div class="pagehead"><div><h1>Call ended</h1><div class="sub">${n} things said</div></div></div>${S.kind==='script'?`<div class="score">${S.ok} / ${TOPICS[S.ti].x.length}</div>`:''}<div id="sum" class="hint">${S.kind==='ai'&&S.msgs.length>2?'Getting feedback…':''}</div><div class="row"><button class="btn gold" id="again">Call again</button><button class="btn" id="back">Back</button></div>`;
   c.querySelector('#again').onclick=()=>{store.call=S.kind==='script'?{kind:'script',ti:S.ti,i:0,log:[],ok:0}:{kind:'ai',persona:S.persona,msgs:[],log:[],turns:0};render()};c.querySelector('#back').onclick=()=>{store.call=null;render()};
   if(S.kind==='ai'&&S.msgs.length>2){try{const t=await aiSummary(S.persona,S.msgs);c.querySelector('#sum').innerHTML=`<div class="note" style="white-space:pre-wrap;color:var(--ink)">${esc(t)}</div>`}catch(e){c.querySelector('#sum').textContent='Feedback failed: '+e.message}}
@@ -2344,12 +2352,12 @@ function recStop(){return new Promise(res=>{if(!REC){res(null);return}const {mr,
 async function aiTurn(S,userText){const L=CALL_LEVELS[store.callLevel||1],F=CALL_FOCUS[store.callFocus||'none'],P=S.persona,SUB=S.subject;
   const sys=`You are ${P.name} (${P.ja}) at ${P.place}, on a phone call with Quinn, a foreign visitor learning Japanese. Subject of this call: ${SUB.seed}
 Style: ${P.style}. Level: ${L.rule} ${F.rule?'Practice focus: '+F.rule:''}
-Rules: speak only Japanese, hiragana and katakana only (no kanji), a space between words. ALWAYS respond to the exact content of what Quinn just said first (pick up a word of it, agree, laugh, be surprised, answer their question), then ask ONE follow-up that builds on it. Never jump to a new question unrelated to their answer. If their Japanese is broken, work out what they meant and reply to that meaning. If they say they did not understand or ask you to repeat, say the same idea again with simpler words. Maximum two short sentences.
+Rules: speak only Japanese, hiragana and katakana only (no kanji), a space between words. ALWAYS respond to the exact content of what Quinn just said first (pick up a word of it, agree, laugh, be surprised, answer their question), then ask ONE follow-up that builds on it. Never jump to a new question unrelated to their answer. If their Japanese is broken, work out what they meant and reply to that meaning. If they say they did not understand or ask you to repeat, say the same idea again with simpler words. Maximum two short sentences. "reply" must never be empty.
 Return JSON only: {"reply":"...your Japanese...","en":"English meaning of your reply","fix":null or {"said":"what Quinn said, in kana","better":"the natural way to say it, in kana","why":"one short English line"}}. Set "fix" only when Quinn's last message had a real mistake (wrong particle, wrong form, unnatural word); for small slips or correct Japanese, "fix" is null. Never put corrections in "reply".`;
   const msgs=[{role:'system',content:sys},...S.msgs,...(userText?[{role:'user',content:userText}]:[{role:'user',content:'(the call connects; greet them in one short sentence and open the subject with one simple question)'}])];
   const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:.7,max_tokens:220,response_format:{type:'json_object'},messages:msgs})});
-  if(!r.ok)throw new Error('OpenAI '+r.status);let raw=(await r.json()).choices[0].message.content||'';let j;try{j=JSON.parse(raw)}catch(e){const m=raw.match(/\{[\s\S]*\}/);try{j=m?JSON.parse(m[0]):null}catch(e2){j=null}}
-  if(!j||typeof j!=='object')j={reply:raw.replace(/[{}"]/g,'').slice(0,120),en:'',fix:null};if(typeof j.reply!=='string'||!j.reply.trim())j.reply='もう いっかい いって？';if(typeof j.en!=='string')j.en='';
+  if(!r.ok)throw new Error('OpenAI '+r.status);let raw=(await r.json()).choices[0].message.content||'';S._lastRaw=raw;let j;try{j=JSON.parse(raw)}catch(e){const m=raw.match(/\{[\s\S]*\}/);try{j=m?JSON.parse(m[0]):null}catch(e2){j=null}}
+  if(!j||typeof j!=='object'||typeof j.reply!=='string'||!j.reply.trim()){if(!S._retried){S._retried=true;const k=await aiTurn(S,userText);S._retried=false;return k}j={reply:'ごめん、きこえなかった。もう いっかい いって？',en:'Sorry, I missed that. Say it again?',fix:null}}S._retried=false;if(typeof j.en!=='string')j.en='';
   if(!j.fix||typeof j.fix!=='object'||!j.fix.better)j.fix=null;else{j.fix={said:String(j.fix.said||''),better:String(j.fix.better),why:String(j.fix.why||'')}}
   if(/[一-龯]/.test(j.reply+(j.fix?j.fix.better:'')))j=await kanaOnly(j);return j}
 async function kanaOnly(j){try{const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:0,max_tokens:200,response_format:{type:'json_object'},messages:[{role:'system',content:'Rewrite every Japanese string in this JSON in hiragana and katakana only (no kanji at all), keeping spaces between words and keeping the meaning. Return the same JSON shape.'},{role:'user',content:JSON.stringify(j)}]})});if(!r.ok)return j;const k=JSON.parse((await r.json()).choices[0].message.content);if(k&&k.reply)return {reply:k.reply,en:k.en||j.en,fix:k.fix&&k.fix.better?k.fix:j.fix}}catch(e){}return j}
@@ -2359,8 +2367,8 @@ function callRunAI(c){
   const logHtml=()=>S.log.map(bubble).join('');
   c.innerHTML=`<div class="pagehead"><button class="back" id="hang">Hang up</button><div><h1>${esc(S.persona.name)}</h1><div class="sub">${esc(S.subject.name)} · ${CALL_LEVELS[store.callLevel||1].name}${store.callFocus&&store.callFocus!=='none'?' · '+CALL_FOCUS[store.callFocus].name:''}</div></div></div>
    <div id="log" style="min-height:120px">${logHtml()}</div><div id="status" class="hint" style="text-align:center;margin:8px 0;min-height:20px"></div>
-   <div class="row actions" id="act"></div><div id="aid"></div>`;
-  c.querySelector('#hang').onclick=()=>endCallAI(c);
+   <div class="callbar"><div class="row actions" id="act"></div><button class="btn" id="hang3" style="border-color:var(--bad);color:var(--bad)">Hang up</button></div><div id="aid"></div>`;
+  c.querySelector('#hang').onclick=()=>endCallAI(c);c.querySelector('#hang3').onclick=()=>endCallAI(c);
   const act=c.querySelector('#act'),status=c.querySelector('#status'),log=c.querySelector('#log');
   const redraw=()=>{log.innerHTML=logHtml();log.lastElementChild&&log.lastElementChild.scrollIntoView({block:'nearest'})};
   const askUser=()=>{act.innerHTML='';
@@ -2379,9 +2387,9 @@ function callRunAI(c){
       S.msgs.push({role:'assistant',content:j.reply});S.log.push({jp:j.reply,en:j.en});redraw();
       const wait=Math.max(0,700-(performance.now()-t0));await new Promise(r=>setTimeout(r,wait));status.textContent='';await speakAwait(j.reply.replace(/ /g,''));askUser()}
     catch(e){console.error(e);status.textContent='Hiccup: '+e.message;askUser();const rb=document.createElement('button');rb.className='btn';rb.textContent='Retry';rb.onclick=()=>{const last=S.msgs[S.msgs.length-1];if(last&&last.role==='user'){S.msgs.pop();const i=S.log.map(x=>x.me).lastIndexOf(true);if(i>=0)S.log.splice(i,1);go(last.content)}else go()};act.appendChild(rb)}};
-  if(!S.msgs.length)go();else askUser();
+  if(!S.msgs.length){status.textContent='calling…';sfxRing().then(()=>go())}else askUser();
 }
-async function endCallAI(c){const S=store.call;if(!S)return;const said=S.log.filter(l=>l.me);const fixes=S.log.filter(l=>l.fix);
+async function endCallAI(c){const S=store.call;if(!S)return;sfxHangup();if(curAudio){try{curAudio.pause()}catch(e){}}if('speechSynthesis' in window)speechSynthesis.cancel();const said=S.log.filter(l=>l.me);const fixes=S.log.filter(l=>l.fix);
   const transcript=S.log.map(l=>`<tr><td class="fl" style="white-space:nowrap">${l.me?'you':esc(S.persona.ja)}</td><td><span class="ja">${l.jp}</span><div class="hint">${romajiAny(l.jp)}${l.en?' · '+esc(l.en):''}</div>${l.fix?`<div class="hint" style="color:var(--bad)">better: <span class="ja">${l.fix.better}</span> (${romajiAny(l.fix.better)}) ${esc(l.fix.why)}</div>`:''}</td></tr>`).join('');
   c.innerHTML=`<div class="pagehead"><div><h1>Call ended</h1><div class="sub">${esc(S.persona.name)} · ${esc(S.subject.name)} · you said ${said.length} things, ${fixes.length} corrections</div></div></div>
    <div id="sum" class="hint">${S.msgs.length>2?'Getting feedback…':''}</div>
