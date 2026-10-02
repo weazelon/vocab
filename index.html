@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v4.7</title>
+<title>Kana + Vocab Trainer v4.9</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -154,7 +154,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v4.7 visual pass: ink, paper, motion (no libraries) ---- */
+/* ---- v4.9 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -206,7 +206,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.7</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v4.9</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -740,7 +740,7 @@ const REGLABEL={casual:'casual, with friends',staff:'with staff, polite but natu
 const STRIP=/[、。？！ ]/g;
 
 /* ---------- STATE ---------- */
-const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',setGrp:'all',call:null,callInput:'mic',callLevel:1,callFocus:'none',chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
+const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',setGrp:'all',call:null,callInput:'mic',callLevel:1,callFocus:'none',callSubject:'intro',callPersona:'izakaya',callMode:null,chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
 let PROG={};
 try{PROG=JSON.parse(localStorage.getItem('kvt_prog')||'{}')}catch(e){PROG={}}
 function save(){try{localStorage.setItem('kvt_prog',JSON.stringify(PROG))}catch(e){}}
@@ -860,7 +860,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.7</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v4.9</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -2223,20 +2223,39 @@ const CALL_FOCUS={none:{name:'No focus',rule:''},past:{name:'Past tense',rule:'S
 const CALL_PERSONAS=[
  {id:'izakaya',name:'Ken, the regular next to you',ja:'ケン',place:'an izakaya in Shinjuku at 10pm',style:'casual male friend, drinks a bit, curious about foreigners, uses うまい, まじで, それな'},
  {id:'date',name:'Yui, on a first date',ja:'ゆい',place:'a cafe in Shibuya',style:'casual, warm, teasing, asks follow-up questions, uses かも, ね, えー'},
+ {id:'student',name:'Haruto, a university student',ja:'はると',place:'a shared table at a cafe',style:'casual, polite-ish to a stranger at first, big anime and game fan, excitable'},
+ {id:'obaachan',name:'Obaachan at the guesthouse',ja:'おばあちゃん',place:'the kitchen of a small guesthouse',style:'warm, slow, simple words, worries whether you have eaten, uses ね a lot'},
+ {id:'coworker',name:'Mika, a colleague\'s friend',ja:'みか',place:'a nomikai after work',style:'friendly office worker, polite-casual mix, curious about your work, slightly tired'},
+ {id:'kid',name:'Sora, a ten-year-old',ja:'そら',place:'a park bench',style:'very simple Japanese, short sentences, blunt questions, says すごい and なんで a lot'},
  {id:'front',name:'Hotel front desk',ja:'フロント',place:'the front desk of your hotel',style:'polite staff register (ます/です), helpful, short sentences'},
  {id:'ramen',name:'Ramen shop owner',ja:'おやじ',place:'a tiny ramen counter',style:'gruff but kind, short polite-ish sentences, asks about noodle firmness and toppings'},
  {id:'konbini',name:'Konbini clerk',ja:'てんいん',place:'a FamilyMart at midnight',style:'fast polite set phrases: あたためますか, ふくろ, ポイントカード'},
+ {id:'station',name:'Station staff',ja:'えきいん',place:'the ticket gate at Shinjuku station',style:'polite, efficient, repeats platform numbers clearly'},
+ {id:'driver',name:'Taxi driver',ja:'うんてんしゅ',place:'a taxi at night',style:'older man, polite but chatty, asks where you are from, comments on the weather'},
+ {id:'pharm',name:'Pharmacist',ja:'やくざいし',place:'a drugstore counter',style:'polite, careful, asks symptoms one at a time, explains simply'},
  {id:'random',name:'Someone at a bar',ja:'？',place:'a standing bar in Koenji',style:'casual, slightly drunk, very friendly, asks where you are from'}];
 function callHome(c){
-  const cloudVoice=VOICE.provider!=='none'&&VOICE.key;const hasKey=VOICE.provider==='openai'&&VOICE.key;const canMic=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
-  c.innerHTML=`<div class="pagehead"><div><h1>Call</h1><div class="sub">Pick up the phone and talk. Scripted calls are free; AI calls use your own OpenAI key.</div></div></div>
+  const hasKey=VOICE.provider==='openai'&&VOICE.key;const canMic=!!(navigator.mediaDevices&&window.MediaRecorder);
+  if(store.callSubject==null)store.callSubject='intro';if(store.callPersona==null)store.callPersona='izakaya';if(store.callMode==null)store.callMode=hasKey?'ai':'script';
+  const ai=store.callMode==='ai';
+  c.innerHTML=`<div class="pagehead"><div><h1>Call</h1><div class="sub">Pick up the phone and talk</div></div></div>
+   <div class="seg"><span class="seglab">Mode</span><div class="segbtns"><span class="chip ${ai?'on':''}" data-cm="ai">Real conversation (AI)</span><span class="chip ${!ai?'on':''}" data-cm="script">Scripted drill (free)</span></div></div>
+   <p class="hint" style="margin:0 0 10px 82px">${ai?'A character who hears you, answers what you actually said, stays on the subject and corrects you on screen. Uses your own OpenAI key.':'The other side reads a fixed Chat conversation and does not react to you. No key needed, browser voice.'}</p>
+   ${ai&&!hasKey?'<div class="note" style="border-left-color:var(--bad)"><b style="color:var(--bad)">No OpenAI key in this browser.</b> Paste it in Home > Voice and set the provider to OpenAI.</div>':''}
+   ${canMic?'':'<p class="hint warn">This browser cannot record audio. Typing still works.</p>'}
+   <div class="seg"><span class="seglab">Level</span><div class="segbtns">${[1,2,3].map(n=>`<span class="chip ${(store.callLevel||1)===n?'on':''}" data-lv="${n}">${CALL_LEVELS[n].name}</span>`).join('')}</div></div>
    <div class="seg"><span class="seglab">Answer by</span><div class="segbtns"><span class="chip ${store.callInput!=='type'?'on':''}" data-ci="mic">Speaking</span><span class="chip ${store.callInput==='type'?'on':''}" data-ci="type">Typing</span></div></div>
-   ${canMic?'':'<p class="hint warn">This browser has no speech recognition (Chrome or Edge do). Typing still works.</p>'}${cloudVoice?'':'<div class="note" style="border-left-color:var(--bad)"><b style="color:var(--bad)">Browser voice in use.</b> Your API key is saved per browser and per address, so this one has none. Paste it in Home > Voice to get the same voice as on your phone.</div>'}
-   <h2 style="margin-top:14px">Scripted calls <span class="reg">free</span></h2><p class="hint">The other side follows one of the ${TOPICS.length} Chat conversations. You answer out loud; close enough passes. Good for drilling the questions you will actually be asked.</p>
-   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${TOPICS.map((t,i)=>`<div class="kcell" data-t="${i}" style="cursor:pointer;text-align:left;padding:8px 10px"><div style="color:var(--ink)">${esc(t.t)}</div><div class="hint">${t.x.length} turns</div></div>`).join('')}</div>
-   <h2 style="margin-top:22px">AI calls <span class="reg">your OpenAI key</span></h2><div class="seg"><span class="seglab">Level</span><div class="segbtns">${[1,2,3].map(n=>`<span class="chip ${(store.callLevel||1)===n?'on':''}" data-lv="${n}">${CALL_LEVELS[n].name}</span>`).join('')}</div></div><div class="filt"><span class="seglab">Practice</span><div class="fbtns">${Object.keys(CALL_FOCUS).map(k=>`<span class="chip ${(store.callFocus||'none')===k?'on':''}" data-fc="${k}">${CALL_FOCUS[k].name}</span>`).join('')}</div></div><p class="hint">${hasKey?'A character who actually reacts to what you say, stays in the register of the place, and never corrects you mid-call. Costs about a cent or two per minute on your key.':'Enter an OpenAI key in Home > Voice and set the provider to OpenAI to unlock these. The key stays in this browser.'}</p>
-   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));${hasKey?'':'opacity:.45;pointer-events:none'}">${CALL_PERSONAS.map(p=>`<div class="kcell" data-p="${p.id}" style="cursor:pointer;text-align:left;padding:10px 12px"><div style="color:var(--ink)"><span class="ja" style="color:var(--gold)">${p.ja}</span> ${esc(p.name)}</div><div class="hint">${esc(p.place)}</div></div>`).join('')}</div>`;
-  c.onclick=e=>{const lv=e.target.closest('[data-lv]');if(lv){store.callLevel=+lv.dataset.lv;render();return}const fc=e.target.closest('[data-fc]');if(fc){store.callFocus=fc.dataset.fc;render();return}const ci=e.target.closest('[data-ci]');if(ci){store.callInput=ci.dataset.ci;render();return}const t=e.target.closest('[data-t]');if(t){store.call={kind:'script',ti:+t.dataset.t,i:0,log:[],ok:0};render();return}const p=e.target.closest('[data-p]');if(p){store.call={kind:'ai',persona:CALL_PERSONAS.find(x=>x.id===p.dataset.p),msgs:[],log:[],turns:0};render()}};
+   ${ai?`<div class="filt"><span class="seglab">Practice</span><div class="fbtns">${Object.keys(CALL_FOCUS).map(k=>`<span class="chip ${(store.callFocus||'none')===k?'on':''}" data-fc="${k}">${CALL_FOCUS[k].name}</span>`).join('')}</div></div>
+   <div class="row" style="margin:14px 0 6px;position:sticky;top:0;z-index:5;background:var(--panel);padding:8px 0"><button class="btn gold" id="dial" ${hasKey?'':'disabled'} style="font-size:17px;padding:14px 26px">Call ${esc(CALL_PERSONAS.find(p=>p.id===store.callPersona).ja)} about ${esc(CALL_SUBJECTS.find(x=>x.id===store.callSubject).name.toLowerCase())}</button></div>
+   <h2 style="margin-top:10px">Subject <span class="hint" style="font-weight:400">${CALL_SUBJECTS.length}</span></h2>
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${CALL_SUBJECTS.map(sb=>`<div class="kcell" data-sb="${sb.id}" style="cursor:pointer;text-align:left;padding:8px 10px;${store.callSubject===sb.id?'border-color:var(--gold);background:#2a3146':''}"><div style="color:var(--ink)"><span class="ja" style="color:var(--gold)">${sb.ja}</span> ${esc(sb.name)}</div></div>`).join('')}</div>
+   <h2 style="margin-top:18px">Who picks up <span class="hint" style="font-weight:400">${CALL_PERSONAS.length}</span></h2>
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">${CALL_PERSONAS.map(p=>`<div class="kcell" data-p="${p.id}" style="cursor:pointer;text-align:left;padding:10px 12px;${store.callPersona===p.id?'border-color:var(--gold);background:#2a3146':''}"><div style="color:var(--ink)"><span class="ja" style="color:var(--gold)">${p.ja}</span> ${esc(p.name)}</div><div class="hint">${esc(p.place)}</div></div>`).join('')}</div>`
+   :`<h2 style="margin-top:10px">Pick a script</h2><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${TOPICS.map((t,i)=>`<div class="kcell" data-t="${i}" style="cursor:pointer;text-align:left;padding:8px 10px"><div style="color:var(--ink)">${esc(t.t)}</div><div class="hint">${t.x.length} turns</div></div>`).join('')}</div>`}`;
+  c.onclick=e=>{const cm=e.target.closest('[data-cm]');if(cm){store.callMode=cm.dataset.cm;render();return}const lv=e.target.closest('[data-lv]');if(lv){store.callLevel=+lv.dataset.lv;render();return}const fc=e.target.closest('[data-fc]');if(fc){store.callFocus=fc.dataset.fc;render();return}const ci=e.target.closest('[data-ci]');if(ci){store.callInput=ci.dataset.ci;render();return}
+    const sb=e.target.closest('[data-sb]');if(sb){store.callSubject=sb.dataset.sb;render();return}const p=e.target.closest('[data-p]');if(p){store.callPersona=p.dataset.p;render();return}
+    const t=e.target.closest('[data-t]');if(t){store.call={kind:'script',ti:+t.dataset.t,i:0,log:[],ok:0};render();return}
+    if(e.target.closest('#dial')){store.call={kind:'ai',persona:CALL_PERSONAS.find(x=>x.id===store.callPersona),subject:CALL_SUBJECTS.find(x=>x.id===store.callSubject),msgs:[],log:[]};render()}};
 }
 function listenOnce(onText,onErr){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){onErr('no speech recognition');return null}const r=new SR();r.lang='ja-JP';r.interimResults=true;r.maxAlternatives=3;let final='';
   r.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t;else interim+=t}const el=document.getElementById('heard');if(el)el.textContent=final+interim};
@@ -2250,7 +2269,7 @@ ${F.rule?'Focus: '+F.rule:''}
 How to converse: ALWAYS react to the exact thing they just said before anything else (echo a word of it, agree, laugh, be surprised), then ask ONE follow-up that builds on their answer. Never change the subject unless they do. If their Japanese is broken, guess what they meant and respond to that meaning. If they say they do not understand or ask you to repeat, say the same thing again with simpler words. Never correct grammar, never explain, never use English. Maximum two short sentences per turn.`;
   const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:.7,max_tokens:100,messages:[{role:'system',content:sys},...msgs]})});
   if(!r.ok)throw new Error('OpenAI '+r.status);const j=await r.json();return j.choices[0].message.content.trim()}
-async function aiSummary(persona,msgs){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:.3,max_tokens:400,messages:[{role:'system',content:'You are a friendly Japanese tutor. The user just had a practice call. In English, give: 2 things they said well, 2 corrections (quote their Japanese, give the natural casual version in kana with romaji), and one phrase to learn next. Be brief, no preamble.'},{role:'user',content:msgs.map(m=>(m.role==='user'?'Learner: ':'Partner: ')+m.content).join('\n')}]})});
+async function aiSummary(persona,msgs){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:.3,max_tokens:400,messages:[{role:'system',content:'You are a friendly Japanese tutor. The user just had a practice call. In English, give: what they did well (2 lines), the 2 or 3 most useful corrections (quote their Japanese, then the natural version in kana with romaji, one line why), and one phrase to learn for next time. Be brief, no preamble, plain text.'},{role:'user',content:msgs.map(m=>(m.role==='user'?'Learner: ':'Partner: ')+m.content).join('\n')}]})});
   if(!r.ok)throw new Error('OpenAI '+r.status);return (await r.json()).choices[0].message.content.trim()}
 function callRun(c){
   const S=store.call;const mic=store.callInput!=='type';
@@ -2282,7 +2301,90 @@ async function endCall(c){const S=store.call;if(!S)return;const n=S.log.filter(l
   c.querySelector('#again').onclick=()=>{store.call=S.kind==='script'?{kind:'script',ti:S.ti,i:0,log:[],ok:0}:{kind:'ai',persona:S.persona,msgs:[],log:[],turns:0};render()};c.querySelector('#back').onclick=()=>{store.call=null;render()};
   if(S.kind==='ai'&&S.msgs.length>2){try{const t=await aiSummary(S.persona,S.msgs);c.querySelector('#sum').innerHTML=`<div class="note" style="white-space:pre-wrap;color:var(--ink)">${esc(t)}</div>`}catch(e){c.querySelector('#sum').textContent='Feedback failed: '+e.message}}
   store.call=null;}
-function call(m){const c=document.createElement('div');c.className='card';m.appendChild(c);if(store.call)callRun(c);else callHome(c)}
+function call(m){const c=document.createElement('div');c.className='card';m.appendChild(c);if(store.call&&store.call.kind==='ai')callRunAI(c);else if(store.call)callRun(c);else callHome(c)}
+
+/* ---------- CALL v2: AI conversation with OpenAI transcription, on-screen corrections, full transcript ---------- */
+const CALL_SUBJECTS=[
+ {id:'intro',name:'Getting to know each other',ja:'じこしょうかい',seed:'Find out who they are: where from, how long in Japan, why they came, what they do. React to each answer.'},
+ {id:'food',name:'Food and drink',ja:'たべもの',seed:'Talk about what they like to eat and drink in Japan, what they tried, what they cannot eat.'},
+ {id:'today',name:'What you did today',ja:'きょう',seed:'Ask what they did today and yesterday, where they went, how it was. Past tense throughout.'},
+ {id:'plans',name:'Making plans',ja:'よてい',seed:'Make a plan to meet: when, where, what to do. Invite them and let them invite you.'},
+ {id:'anime',name:'Anime, manga, games',ja:'アニメ',seed:'Talk about anime, manga and games: favourites, what they are watching, recommendations.'},
+ {id:'japan',name:'Impressions of Japan',ja:'にほん',seed:'Ask what surprised them about Japan, what they like, what is different from home.'},
+ {id:'home',name:'Their country',ja:'くに',seed:'Ask about Israel: weather, food, cities, what people do for fun, how it compares to Japan.'},
+ {id:'work',name:'Work and hobbies',ja:'しごと',seed:'Ask what they do for work (video, directing, tabletop games), what they enjoy about it, hobbies.'},
+ {id:'family',name:'Family and friends',ja:'かぞく',seed:'Ask about family, friends, pets, whether they miss home, who they talk to.'},
+ {id:'weekend',name:'Weekend and days off',ja:'しゅうまつ',seed:'What they do on days off, in Japan and at home. Suggest things.'},
+ {id:'weather',name:'Weather and seasons',ja:'てんき',seed:'Talk about today\'s weather, the cold, seasons in Japan versus their country, what to wear.'},
+ {id:'travel',name:'Travel stories',ja:'りょこう',seed:'Where they have been in Japan and elsewhere, best and worst moments, where next.'},
+ {id:'music',name:'Music and movies',ja:'おんがく',seed:'What they listen to and watch, favourite films, karaoke songs.'},
+ {id:'sports',name:'Sports and health',ja:'スポーツ',seed:'Do they exercise, walk a lot in Japan, feeling tired, sleeping well.'},
+ {id:'tech',name:'Phones and gadgets',ja:'スマホ',seed:'Phones, cameras, games consoles, what they bought in Akihabara, Wi-Fi troubles.'},
+ {id:'learning',name:'Learning Japanese',ja:'にほんご',seed:'How they study, what is hard, what they can read, encourage them, teach one word.'},
+ {id:'izakaya',name:'Drinking together',ja:'のみかい',seed:'You are drinking together: what to order next, cheers, who is tired, last train.'},
+ {id:'dating',name:'Flirting on a date',ja:'デート',seed:'A light first date: compliments, what they like in a person, next date ideas. Keep it sweet.'},
+ {id:'order',name:'Ordering at a restaurant',ja:'ちゅうもん',seed:'You are staff taking their order. Offer dishes, some with fish, ask about drinks, size, spice.'},
+ {id:'hotel',name:'At the hotel',ja:'ホテル',seed:'You are front desk. Check-in, Wi-Fi, breakfast time, a problem with the room, luggage.'},
+ {id:'lost',name:'Asking the way',ja:'みち',seed:'They are lost and asking you for directions to a station or shop. Give simple directions and check they understood.'},
+ {id:'shop',name:'Shopping',ja:'かいもの',seed:'You are shop staff. They are looking for something, asking price, size, tax-free, paying.'},
+ {id:'train',name:'At the station',ja:'えき',seed:'You are station staff. Which train, which platform, transfers, Suica top-up, last train.'},
+ {id:'doctor',name:'Pharmacy and feeling ill',ja:'くすり',seed:'You are a pharmacist. What hurts, since when, allergies, how to take the medicine.'},
+ {id:'lostitem',name:'Lost something',ja:'おとしもの',seed:'You are staff at lost and found. What did they lose, where, when, what does it look like.'},
+ {id:'taxi',name:'In a taxi',ja:'タクシー',seed:'You are the driver. Where to, how long, small talk about where they are from, payment.'},
+ {id:'onsen',name:'At the onsen',ja:'おんせん',seed:'You are reception. Tattoos, towels, rules, which bath, how long to stay in.'},
+ {id:'karaoke',name:'Karaoke night',ja:'カラオケ',seed:'Choosing songs, whose turn, drinks, how long is left, anime songs.'},
+ {id:'phone',name:'Phone call to book a table',ja:'よやく',seed:'You are a restaurant answering the phone. Date, time, how many people, name, allergies.'},
+ {id:'free',name:'Free talk',ja:'フリー',seed:'No fixed subject. Follow whatever they bring up.'}];
+async function transcribeBlob(blob){const fd=new FormData();fd.append('file',blob,'speech.webm');fd.append('model','gpt-4o-mini-transcribe');fd.append('language','ja');fd.append('prompt','日本語を学んでいる外国人の話し言葉。ひらがなとカタカナで書く。');
+  const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key},body:fd});if(!r.ok)throw new Error('transcribe '+r.status);return (await r.json()).text.trim()}
+let REC=null;
+async function recStart(){const stream=await navigator.mediaDevices.getUserMedia({audio:true});const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';const mr=new MediaRecorder(stream,{mimeType:mime});const chunks=[];mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.start();REC={mr,stream,chunks};}
+function recStop(){return new Promise(res=>{if(!REC){res(null);return}const {mr,stream,chunks}=REC;REC=null;mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());res(new Blob(chunks,{type:mr.mimeType}))};mr.stop()})}
+async function aiTurn(S,userText){const L=CALL_LEVELS[store.callLevel||1],F=CALL_FOCUS[store.callFocus||'none'],P=S.persona,SUB=S.subject;
+  const sys=`You are ${P.name} (${P.ja}) at ${P.place}, on a phone call with Quinn, a foreign visitor learning Japanese. Subject of this call: ${SUB.seed}
+Style: ${P.style}. Level: ${L.rule} ${F.rule?'Practice focus: '+F.rule:''}
+Rules: speak only Japanese, hiragana and katakana only (no kanji), a space between words. ALWAYS respond to the exact content of what Quinn just said first (pick up a word of it, agree, laugh, be surprised, answer their question), then ask ONE follow-up that builds on it. Never jump to a new question unrelated to their answer. If their Japanese is broken, work out what they meant and reply to that meaning. If they say they did not understand or ask you to repeat, say the same idea again with simpler words. Maximum two short sentences.
+Return JSON only: {"reply":"...your Japanese...","en":"English meaning of your reply","fix":null or {"said":"what Quinn said, in kana","better":"the natural way to say it, in kana","why":"one short English line"}}. Set "fix" only when Quinn's last message had a real mistake (wrong particle, wrong form, unnatural word); for small slips or correct Japanese, "fix" is null. Never put corrections in "reply".`;
+  const msgs=[{role:'system',content:sys},...S.msgs,...(userText?[{role:'user',content:userText}]:[{role:'user',content:'(the call connects; greet them in one short sentence and open the subject with one simple question)'}])];
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:.7,max_tokens:220,response_format:{type:'json_object'},messages:msgs})});
+  if(!r.ok)throw new Error('OpenAI '+r.status);const j=JSON.parse((await r.json()).choices[0].message.content);return j}
+function callRunAI(c){
+  const S=store.call;const mic=store.callInput!=='type';
+  const bubble=l=>`<div style="margin:8px 0;${l.me?'text-align:right':''}"><span style="display:inline-block;max-width:84%;text-align:left;padding:8px 12px;border-radius:12px;background:${l.me?'var(--gold)':'var(--panel2)'};color:${l.me?'#1a1608':'var(--ink)'}"><span class="ja" style="font-size:18px">${l.jp}</span><div class="hint" style="color:${l.me?'#4a4020':'var(--ink2)'}">${romajiAny(l.jp)}</div>${l.en?`<div class="hint" style="color:${l.me?'#4a4020':'var(--ink2)'}">${esc(l.en)}</div>`:''}</span>${l.fix?`<div class="note" style="border-left-color:var(--bad);text-align:left;margin:6px 0 0;max-width:84%;margin-left:auto"><b style="color:var(--bad)">Better:</b> <span class="ja">${l.fix.better}</span> <span class="hint">${romajiAny(l.fix.better)}</span><div class="hint">${esc(l.fix.why)}</div></div>`:''}</div>`;
+  const logHtml=()=>S.log.map(bubble).join('');
+  c.innerHTML=`<div class="pagehead"><button class="back" id="hang">Hang up</button><div><h1>${esc(S.persona.name)}</h1><div class="sub">${esc(S.subject.name)} · ${CALL_LEVELS[store.callLevel||1].name}${store.callFocus&&store.callFocus!=='none'?' · '+CALL_FOCUS[store.callFocus].name:''}</div></div></div>
+   <div id="log" style="min-height:120px">${logHtml()}</div><div id="status" class="hint" style="text-align:center;margin:8px 0;min-height:20px"></div>
+   <div class="row actions" id="act"></div><div id="aid"></div>`;
+  c.querySelector('#hang').onclick=()=>endCallAI(c);
+  const act=c.querySelector('#act'),status=c.querySelector('#status'),log=c.querySelector('#log');
+  const redraw=()=>{log.innerHTML=logHtml();log.lastElementChild&&log.lastElementChild.scrollIntoView({block:'nearest'})};
+  const askUser=()=>{act.innerHTML='';
+    if(mic){const b=document.createElement('button');b.className='btn gold';b.textContent='Hold to talk';let busy=false;
+      const start=async e=>{e.preventDefault();if(busy)return;busy=true;b.textContent='Listening… release to send';status.textContent='';try{await recStart()}catch(err){status.textContent='Mic blocked: '+err.message;busy=false;b.textContent='Hold to talk'}};
+      const stop=async()=>{if(!busy)return;busy=false;b.textContent='Hold to talk';const blob=await recStop();if(!blob||blob.size<2000){status.textContent='Nothing heard, try again';return}status.textContent='hearing you…';try{const t=await transcribeBlob(blob);if(!t){status.textContent='Nothing heard, try again';return}go(t)}catch(err){status.textContent='Transcription failed: '+err.message}};
+      b.onpointerdown=start;b.onpointerup=stop;b.onpointerleave=stop;act.appendChild(b)}
+    const inp=document.createElement('input');inp.type='text';inp.placeholder=mic?'or type (romaji or kana)':'type your answer (romaji or kana)';inp.style.cssText='font-size:18px;text-align:left;flex:1;min-width:200px';inp.onkeydown=e=>{if(e.key==='Enter'&&inp.value.trim())go(inp.value.trim())};act.appendChild(inp);if(!mic)inp.focus();
+    const rep=document.createElement('button');rep.className='btn';rep.textContent='Say it again';rep.onclick=()=>{const last=[...S.log].reverse().find(l=>!l.me);if(last)speakAwait(last.jp.replace(/ /g,''))};act.appendChild(rep);
+    const hint=document.createElement('button');hint.className='btn';hint.textContent='Help';hint.onclick=()=>{c.querySelector('#aid').innerHTML=`<div class="ans"><div class="hint">useful</div><div class="a ja" style="font-size:16px">もう いっかい いって？ · ゆっくり おねがい · わからない · そう そう · ちょっと まって</div><div class="ar">say it again? · slowly please · I don't get it · yeah yeah · hang on</div></div>`};act.appendChild(hint)};
+  const go=async userText=>{act.innerHTML='';try{
+      if(userText){S.msgs.push({role:'user',content:userText});S.log.push({me:true,jp:userText});redraw()}
+      status.textContent='…';const t0=performance.now();const j=await aiTurn(S,userText);
+      if(j.fix&&j.fix.better&&userText){const mine=S.log[S.log.length-1];mine.fix=j.fix}
+      S.msgs.push({role:'assistant',content:j.reply});S.log.push({jp:j.reply,en:j.en});redraw();
+      const wait=Math.max(0,700-(performance.now()-t0));await new Promise(r=>setTimeout(r,wait));status.textContent='';await speakAwait(j.reply.replace(/ /g,''));askUser()}
+    catch(e){status.textContent='Call dropped: '+e.message;act.innerHTML='<button class="btn" id="hang2">Hang up</button>';c.querySelector('#hang2').onclick=()=>endCallAI(c)}};
+  if(!S.msgs.length)go();else askUser();
+}
+async function endCallAI(c){const S=store.call;if(!S)return;const said=S.log.filter(l=>l.me);const fixes=S.log.filter(l=>l.fix);
+  const transcript=S.log.map(l=>`<tr><td class="fl" style="white-space:nowrap">${l.me?'you':esc(S.persona.ja)}</td><td><span class="ja">${l.jp}</span><div class="hint">${romajiAny(l.jp)}${l.en?' · '+esc(l.en):''}</div>${l.fix?`<div class="hint" style="color:var(--bad)">better: <span class="ja">${l.fix.better}</span> (${romajiAny(l.fix.better)}) ${esc(l.fix.why)}</div>`:''}</td></tr>`).join('');
+  c.innerHTML=`<div class="pagehead"><div><h1>Call ended</h1><div class="sub">${esc(S.persona.name)} · ${esc(S.subject.name)} · you said ${said.length} things, ${fixes.length} corrections</div></div></div>
+   <div id="sum" class="hint">${S.msgs.length>2?'Getting feedback…':''}</div>
+   <h2 style="margin-top:14px">Transcript</h2><table class="ftable">${transcript}</table>
+   <div class="row" style="margin-top:12px"><button class="btn gold" id="again">Call again</button><button class="btn" id="copy">Copy transcript</button><button class="btn" id="back">Back</button></div>`;
+  c.querySelector('#again').onclick=()=>{store.call={kind:'ai',persona:S.persona,subject:S.subject,msgs:[],log:[]};render()};c.querySelector('#back').onclick=()=>{store.call=null;render()};
+  c.querySelector('#copy').onclick=()=>{const txt=S.log.map(l=>(l.me?'you: ':S.persona.ja+': ')+l.jp+'  ('+romajiAny(l.jp)+')'+(l.en?'  '+l.en:'')+(l.fix?'\n   better: '+l.fix.better+' - '+l.fix.why:'')).join('\n');navigator.clipboard&&navigator.clipboard.writeText(txt);c.querySelector('#copy').textContent='Copied'};
+  if(S.msgs.length>2){try{const t=await aiSummary(S.persona,S.msgs);c.querySelector('#sum').innerHTML=`<div class="note" style="white-space:pre-wrap;color:var(--ink)">${esc(t)}</div>`}catch(e){c.querySelector('#sum').textContent='Feedback failed: '+e.message}}
+  store.call=null;}
 
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
