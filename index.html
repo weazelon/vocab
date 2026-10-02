@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v3.5</title>
+<title>Kana + Vocab Trainer v3.6</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -113,7 +113,7 @@ td.r{color:var(--ink2)}
 </head>
 <body>
 <header>
-  <h1>Kana + Vocab Trainer <span>v3.5</span></h1>
+  <h1>Kana + Vocab Trainer <span>v3.6</span></h1>
   <div class="stat"><button class="btn small" id="sndBtn">Sound: on</button> Today: <b id="sOk">0</b> right / <b id="sBad">0</b> wrong | streak <b id="sStreak">0</b></div>
 </header>
 <nav id="nav">
@@ -641,7 +641,7 @@ const REGLABEL={casual:'casual, with friends',staff:'with staff, polite but natu
 const STRIP=/[、。？！ ]/g;
 
 /* ---------- STATE ---------- */
-const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'vcourse',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'kana',sound:true};
+const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'vcourse',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'kana',sound:true};
 let PROG={};
 try{PROG=JSON.parse(localStorage.getItem('kvt_prog')||'{}')}catch(e){PROG={}}
 function save(){try{localStorage.setItem('kvt_prog',JSON.stringify(PROG))}catch(e){}}
@@ -765,7 +765,7 @@ function home(m){
   <div class="step"><div class="n ja">文</div><div><b>Step 3: sentences (5 min)</b><p>Over two hundred full sentences the way people actually say them (casual contractions, dropped particles, かも / っけ / ね endings), plus slot patterns for ordering and asking. Three modes: order the tiles, read it and type the romaji, or write it by building it in kana. Every answer comes with a one-line grammar note.</p></div></div>
   <div class="step"><div class="n ja">話</div><div><b>Step 4: talk (5 min)</b><p>The questions people will ask you (where from, how long, why Japan, what anime, favorite city) with answers in your own voice. Answer first, compare after, or build the answer from tiles.</p></div></div>
   <div class="step"><div class="n ja">会</div><div><b>Chat: whole conversations on one topic</b><p>64 topics, 6 to 8 turns each, from first meeting and ordering ramen to asking someone out and New Year. The other side speaks, you answer, compare, next line. Swap roles to practice asking.</p></div></div>
-  <div class="step"><div class="n ja">形</div><div><b>Step 5: forms (5 min)</b><p>Conjugation (katsuyou), taught verb by verb over 226 verbs (searchable, paged): take する, learn how it becomes します, then しない, then した, then してる, one step at a time, three example sentences per form, then ten sentences to complete with the English shown. A by-form course and free drills sit next to it. Drills and reverse quizzes are there for after.</p></div></div>
+  <div class="step"><div class="n ja">形</div><div><b>Step 5: forms (5 min)</b><p>Conjugation (katsuyou), taught verb by verb over 226 verbs (searchable, paged), plus Sets: one verb, five sentences in five different forms, match them or type the whole sentence. take する, learn how it becomes します, then しない, then した, then してる, one step at a time, three example sentences per form, then ten sentences to complete with the English shown. A by-form course and free drills sit next to it. Drills and reverse quizzes are there for after.</p></div></div>
   <div class="step"><div class="n ja">試</div><div><b>Test: check yourself</b><p>Fixed-length tests per section (10 to 50 questions), no hints, score at the end, misses listed, and a history with your best per section. Run one whenever a section feels easy.</p></div></div>
   <div class="step"><div class="n ja">筆</div><div><b>Step 6: writing (optional)</b><p>Draw on the canvas from memory, then reveal. Reinforces recognition, not a goal in itself.</p></div></div>
   <p class="hint">Nothing is decided until you press Check. Keyboard: 1 to 4 selects an answer, Enter checks or goes to the next one, Backspace undoes a tile. Whatever you get wrong comes back more often. Progress is saved in the browser when you open the file directly (${seen} items seen so far).</p>
@@ -2026,11 +2026,49 @@ Object.assign(GLOSS,GLOSS3);
 
 function toRomaji(s){return romajiAny(s)}
 function hintbox(inner,label){return `<details class="hintbox"><summary>${label||'show meaning'}</summary><div class="inner">${inner}</div></details>`}
+/* ---------- SET PRACTICE: one verb, five sentences, match or type the forms ---------- */
+function setBuild(v,n){const f=conj(v);const keys=shuffle(Object.keys(f).filter(k=>FORM_EN[k])).slice(0,n);
+  return keys.map(k=>{const fr=v[5][Math.floor(Math.random()*3)];const [pre,enT]=FORM_EN[k];const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ');return {k,jp,en,right:f[k],full:jp.replace('＿＿',f[k])}})}
+function setMode(c){
+  if(!store.setV){const pool=VERBALL.map((v,i)=>i);store.setV=pool[Math.floor(Math.random()*pool.length)];store.setItems=null}
+  const v=VERBALL[store.setV];const f=conj(v);const typeMode=store.setKind==='type';
+  if(!store.setItems)store.setItems=setBuild(v,5);const items=store.setItems;
+  const extra=shuffle(Object.keys(f).filter(k=>!items.some(it=>it.k===k))).slice(0,2).map(k=>f[k]);
+  const options=shuffle(items.map(it=>it.right).concat(extra).filter((x,i,a)=>a.indexOf(x)===i));
+  c.innerHTML=`<div class="row" style="margin-bottom:8px"><span class="chip ${!typeMode?'on':''}" data-kind="choose">Choose the form</span><span class="chip ${typeMode?'on':''}" data-kind="type">Type the whole sentence</span>
+    <span style="flex:1"></span><input class="plain" id="setq" placeholder="jump to a verb (kana / romaji / English)" style="width:220px"><button class="btn small" id="setRnd">Random verb</button></div>
+   <div class="formq"><div class="v ja">${v[0]}</div><div class="hint">${toRomaji(v[0])} = ${esc(v[2])} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="t">${typeMode?'Type each sentence in romaji, with the verb in the right form':'Pick the right form of '+v[0]+' for each sentence'}</div></div>
+   ${typeMode?'':`<div class="hint" style="text-align:center;margin-bottom:6px">Options (two are decoys): <span class="ja" style="color:var(--gold);font-size:18px">${options.join('　')}</span></div>`}
+   <table class="ftable" id="setT">${items.map((it,i)=>`<tr><td class="fl" style="width:24px">${i+1}</td><td>
+     <div>${esc(it.en)}</div>
+     ${typeMode?`<div class="hint">(${FORMS[it.k][0]})</div><input type="text" class="setinp" data-i="${i}" placeholder="romaji" autocomplete="off" autocapitalize="off" style="font-size:16px;text-align:left;margin-top:4px">`
+     :`<div class="ja" style="font-size:22px;color:var(--gold)">${it.jp}</div><select class="setsel" data-i="${i}" style="font-size:18px;margin-top:4px"><option value="">choose</option>${options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`}
+     <div class="setfb hint" data-i="${i}"></div></td></tr>`).join('')}</table>
+   <div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check all <span class="keyhint">Enter</span></button><button class="btn" id="setNew">New set, same verb</button></div>`;
+  const pick=vi=>{store.setV=vi;store.setItems=null;render()};
+  c.querySelector('#setRnd').onclick=()=>pick(Math.floor(Math.random()*VERBALL.length));
+  c.querySelector('#setNew').onclick=()=>{store.setItems=null;render()};
+  const q=c.querySelector('#setq');q.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const hit=VERBALL.findIndex(x=>vcMatch(x,q.value));if(hit>=0)pick(hit);else q.style.borderColor='var(--bad)'}};
+  c.onclick=e=>{const k=e.target.closest('[data-kind]');if(k){store.setKind=k.dataset.kind;store.setItems=null;render()}const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};
+  let done=false;
+  c.querySelector('#chk').onclick=()=>{if(done)return;let ok=0;
+    items.forEach((it,i)=>{let good;const fb=c.querySelector(`.setfb[data-i="${i}"]`);
+      if(typeMode){const inp=c.querySelector(`.setinp[data-i="${i}"]`);const val=inp.value.trim();if(!val)return;const want=romajiAny(it.full);good=romMatch(val.replace(/[.,?!]/g,''),want.replace(/[.,?!]/g,''));inp.style.borderColor=good?'var(--ok)':'var(--bad)';fb.innerHTML=`<span class="ja" data-say="${it.full.replace(/ /g,'')}" style="cursor:pointer;color:${good?'var(--ok)':'var(--bad)'}">${it.full}</span> <span class="hint">${want}</span>`}
+      else{const sel=c.querySelector(`.setsel[data-i="${i}"]`);if(!sel.value)return;good=sel.value===it.right;sel.style.borderColor=good?'var(--ok)':'var(--bad)';fb.innerHTML=`<span class="ja" data-say="${it.full.replace(/ /g,'')}" style="cursor:pointer;color:${good?'var(--ok)':'var(--bad)'}">${it.full}</span> <span class="hint">${romajiAny(it.full)} · ${FORMS[it.k][0]}</span>`}
+      if(good===undefined)return;mark('f:'+v[0]+':'+it.k,good);if(good)ok++});
+    const answered=items.filter((it,i)=>typeMode?c.querySelector(`.setinp[data-i="${i}"]`).value.trim():c.querySelector(`.setsel[data-i="${i}"]`).value).length;
+    if(answered<items.length){c.querySelector('#fb').textContent=`Fill in all ${items.length} first (${answered} done)`;return}
+    done=true;const fb=c.querySelector('#fb');fb.className='feedback '+(ok===items.length?'ok':'bad');fb.textContent=`${ok} / ${items.length}`;if(ok===items.length)sfxStreak();else if(ok>=3)sfxOk();else sfxBad();
+    const row=c.querySelector('.row.actions');row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next verb <span class="keyhint">Enter</span>';nb.onclick=()=>pick((store.setV+1)%VERBALL.length);row.appendChild(nb);const ag=document.createElement('button');ag.className='btn';ag.textContent='Again, same verb';ag.onclick=()=>{store.setItems=null;render()};row.appendChild(ag);nb.focus()};
+  if(typeMode){const first=c.querySelector('.setinp');if(first)first.focus()}
+}
+
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
   const d=document.createElement('div');d.className='card';
   d.innerHTML=`<h2>Forms: how endings change (katsuyou)</h2><div id="fm">
    <span class="chip ${store.formMode==='vcourse'?'on':''}" data-v="vcourse">Verb course (start here)</span>
+   <span class="chip ${store.formMode==='set'?'on':''}" data-v="set">Sets: one verb, five sentences</span>
    <span class="chip ${store.formMode==='course'?'on':''}" data-v="course">By form</span>
    <span class="chip ${store.formMode==='drill'?'on':''}" data-v="drill">Drill: make the form</span>
    <span class="chip ${store.formMode==='type'?'on':''}" data-v="type">Drill: type it</span>
@@ -2046,6 +2084,7 @@ function forms(m){
   m.appendChild(d);
   const c=document.createElement('div');c.className='card';m.appendChild(c);
   if(store.formMode==='vcourse'){if(store.vc)vcRun(c);else vcHome(c);return}
+  if(store.formMode==='set'){setMode(c);return}
   if(store.formMode==='course'){if(store.lesson)lessonRun(c);else courseHome(c);return}
   if(store.formMode==='table'){
     c.innerHTML=`<h2>Verb tables</h2><p><select id="vsel2">${VERBS.map((v,i)=>`<option value="${i}" ${i===store.formVerb?'selected':''}>${v[0]} (${toRomaji(v[0])}) = ${v[2]}</option>`).join('')}</select></p><div id="vt"></div>`;
