@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v5.7</title>
+<title>Kana + Vocab Trainer v5.8</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -157,7 +157,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v5.7 visual pass: ink, paper, motion (no libraries) ---- */
+/* ---- v5.8 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -209,7 +209,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.7 · build 2026-10-10b</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.8 · build 2026-10-11</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -222,6 +222,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
     <button data-m="chat"><span class="ico">会</span><span class="lbl">Chat</span></button>
     <button data-m="call"><span class="ico">電</span><span class="lbl">Call</span></button>
     <div class="navgrp">Grammar</div>
+    <button data-m="vlearn"><span class="ico">動</span><span class="lbl">Verb memory</span></button>
     <button data-m="forms"><span class="ico">形</span><span class="lbl">Verb forms</span></button>
     <div class="navgrp">More</div>
     <button data-m="test"><span class="ico">試</span><span class="lbl">Test</span></button>
@@ -743,7 +744,7 @@ const REGLABEL={casual:'casual, with friends',staff:'with staff, polite but natu
 const STRIP=/[、。？！ ]/g;
 
 /* ---------- STATE ---------- */
-const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',setGrp:'all',call:null,callInput:'mic',callLevel:1,callFocus:'none',callSubject:'intro',callPersona:'izakaya',callMode:null,chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
+const store={ok:0,bad:0,streak:0,sentMode:'order',talkMode:'answer',formMode:'hub',lesson:null,vc:null,formSet:new Set(['dict','masu','nai','masen','ta','mashita','nakatta','masendeshita','te','tekudasai','teru','teimasu','teta','teimashita','tai','taidesu']),formVerb:0,seenLessons:new Set(),test:null,chat2:null,vcQuery:'',vcPage:0,setV:null,setItems:null,setKind:'choose',setGrp:'all',call:null,vl:null,callInput:'mic',callLevel:1,callFocus:'none',callSubject:'intro',callPersona:'izakaya',callMode:null,chatRole:'answer',chatInput:'type',testSec:'mixed',testN:20,chat:null,mode:'home',script:'both',rows:new Set(['a','ka','sa','ta','na']),cats:new Set(Object.keys(CATLABEL)),vocabMode:'read',wmode:'h',sound:true};
 let PROG={};
 try{PROG=JSON.parse(localStorage.getItem('kvt_prog')||'{}')}catch(e){PROG={}}
 function save(){try{localStorage.setItem('kvt_prog',JSON.stringify(PROG))}catch(e){}}
@@ -862,13 +863,13 @@ window.addEventListener('keydown',e=>{
 });
 
 /* ---------- NAV ---------- */
-document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store.mode=b.dataset.m;store.test=null;store.chat2=null;store.formMode='hub';store.lesson=null;store.vc=null;store.chat=null;store.call=null;[...nav.children].forEach(x=>x.classList.toggle('on',x===b));render()});
-function render(){const m=document.getElementById('main');m.innerHTML='';store.keyOpts=null;({home,kana,kanatype,vocab,sent,talk,chat,call,forms,test,write,ref})[store.mode](m)}
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store.mode=b.dataset.m;store.test=null;store.chat2=null;store.formMode='hub';store.lesson=null;store.vc=null;store.chat=null;store.call=null;store.vl=null;[...nav.children].forEach(x=>x.classList.toggle('on',x===b));render()});
+function render(){const m=document.getElementById('main');m.innerHTML='';store.keyOpts=null;({home,kana,kanatype,vocab,sent,talk,chat,call,vlearn,forms,test,write,ref})[store.mode](m)}
 
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.7</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.8</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -878,6 +879,7 @@ function home(m){
   <div class="step"><div class="n ja">話</div><div><b>Step 4: talk (5 min)</b><p>The questions people will ask you (where from, how long, why Japan, what anime, favorite city) with answers in your own voice. Answer first, compare after, or build the answer from tiles.</p></div></div>
   <div class="step"><div class="n ja">会</div><div><b>Chat: whole conversations on one topic</b><p>64 topics, 6 to 8 turns each, from first meeting and ordering ramen to asking someone out and New Year. The other side speaks, you answer, compare, next line. Swap roles to practice asking.</p></div></div>
   <div class="step"><div class="n ja">電</div><div><b>Call: talk out loud</b><p>Phone-call practice. Scripted calls from the Chat topics are free and use the browser mic. With your own OpenAI key you get a character who reacts to what you say and gives feedback when you hang up.</p></div></div>
+  <div class="step"><div class="n ja">動</div><div><b>Verb memory</b><p>All 226 verbs in courses of 12. Each verb is taught, then hit five ways: meaning, kana, typing, inside a sentence, typing the conjugated form. Points per answer, 80% unlocks the next course, and a mixed big test over everything you have cleared.</p></div></div>
   <div class="step"><div class="n ja">形</div><div><b>Step 5: forms (5 min)</b><p>Conjugation (katsuyou), taught verb by verb over 226 verbs (searchable, paged), plus Sets: one verb, five sentences in five different forms, match them or type the whole sentence. take する, learn how it becomes します, then しない, then した, then してる, one step at a time, three example sentences per form, then ten sentences to complete with the English shown. A by-form course and free drills sit next to it. Drills and reverse quizzes are there for after.</p></div></div>
   <div class="step"><div class="n ja">試</div><div><b>Test: check yourself</b><p>Fixed-length tests per section (10 to 50 questions), no hints, score at the end, misses listed, and a history with your best per section. Run one whenever a section feels easy.</p></div></div>
   <div class="step"><div class="n ja">筆</div><div><b>Step 6: writing (optional)</b><p>Draw on the canvas from memory, then reveal. Reinforces recognition, not a goal in itself.</p></div></div>
@@ -2421,6 +2423,75 @@ async function endCallAI(c){const S=store.call;if(!S)return;sfxHangup();if(curAu
   c.querySelector('#copy').onclick=()=>{const txt=S.log.map(l=>(l.me?'you: ':S.persona.ja+': ')+l.jp+'  ('+romajiAny(l.jp)+')'+(l.en?'  '+l.en:'')+(l.fix?'\n   better: '+l.fix.better+' - '+l.fix.why:'')).join('\n');navigator.clipboard&&navigator.clipboard.writeText(txt);c.querySelector('#copy').textContent='Copied'};
   if(S.msgs.length>2){try{const t=await aiSummary(S.persona,S.msgs);c.querySelector('#sum').innerHTML=`<div class="note" style="white-space:pre-wrap;color:var(--ink)">${esc(t)}</div>`}catch(e){c.querySelector('#sum').textContent='Feedback failed: '+e.message}}
   store.call=null;}
+
+/* ---------- VERB MEMORY COURSES: 12 verbs per course, each seen 5+ times in 5 ways, score, then the big test ---------- */
+const VL_SIZE=12;
+function vlCourses(){const out=[];for(let i=0;i<VERBALL.length;i+=VL_SIZE)out.push(VERBALL.slice(i,i+VL_SIZE).map(v=>VERBALL.indexOf(v)));return out}
+const VL_COURSES=vlCourses();
+function vlVerbName(vi){const v=VERBALL[vi];return v[0]}
+function vlEn(vi){return VERBALL[vi][2]}
+function vlSentence(vi){const v=VERBALL[vi];const fr=v[5][Math.floor(Math.random()*3)];const f=conj(v);const ks=['dict','masu','ta','mashita','tai','teru'].filter(k=>f[k]);const k=ks[Math.floor(Math.random()*ks.length)];const [pre,enT]=enFor(v,k);
+  const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return {jp:pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。'),full:pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。'),form:f[k],k,en}}
+// item kinds: show (teach), jp2en (pick English), en2jp (pick kana), type (type romaji), fill (pick the verb that fits the sentence), typefill (type the conjugated verb into the sentence)
+function vlBuild(course){const vs=course.slice();const items=[];
+  // pass 1: teach each verb (show card), immediately followed by an easy recognition
+  shuffle(vs).forEach(vi=>{items.push({kind:'show',vi});items.push({kind:'jp2en',vi})});
+  // pass 2: recognition the other way
+  shuffle(vs).forEach(vi=>items.push({kind:'en2jp',vi}));
+  // pass 3: production: type it
+  shuffle(vs).forEach(vi=>items.push({kind:'type',vi}));
+  // pass 4: in a sentence, choose
+  shuffle(vs).forEach(vi=>items.push({kind:'fill',vi}));
+  // pass 5: in a sentence, type the form
+  shuffle(vs).forEach(vi=>items.push({kind:'typefill',vi}));
+  return items}
+function vlDistract(vi,n,course){const pool=(course&&course.length>n+1?course:VERBALL.map((v,i)=>i)).filter(i=>i!==vi&&VERBALL[i][2]!==VERBALL[vi][2]);return shuffle(pool).slice(0,n)}
+function vlId(ci){return 'VL:'+ci}
+function vlHome(c){
+  const done=VL_COURSES.map((cs,i)=>PROG[vlId(i)]||{});const total=VL_COURSES.length;const finished=done.filter(p=>p.best!=null).length;
+  c.innerHTML=`<div class="pagehead"><div><h1>Verb memory</h1><div class="sub">${VERBALL.length} verbs in ${total} courses of ${VL_SIZE}. Each verb comes at you five ways per course; 80% unlocks the next.</div></div></div>
+   <div class="row" style="margin-bottom:10px"><button class="btn gold" id="bigtest" ${finished?'':'disabled'}>Big test: everything mixed</button><span class="hint">${finished?`${finished} of ${total} courses done`:'finish one course to unlock'}</span></div>
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${VL_COURSES.map((cs,i)=>{const p=done[i];const locked=i>0&&!(done[i-1].best>=80);const pct=p.best;return `<div class="kcell" data-c="${i}" style="text-align:left;padding:10px 12px;cursor:${locked?'default':'pointer'};opacity:${locked?.45:1};${pct>=80?'border-color:var(--ok)':''}"><div style="color:var(--ink)"><b>Course ${i+1}</b> <span class="hint">${locked?'locked':pct!=null?`best ${pct}%`:'new'}</span></div><div class="ja hint" style="color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cs.map(vlVerbName).join(' ')}</div></div>`}).join('')}</div>`;
+  c.onclick=e=>{const b=e.target.closest('[data-c]');if(b){const i=+b.dataset.c;const locked=i>0&&!(done[i-1].best>=80);if(locked)return;store.vl={ci:i,items:vlBuild(VL_COURSES[i]),i:0,score:0,max:0,miss:{},streak:0};render();return}
+    if(e.target.closest('#bigtest')){const pool=[];VL_COURSES.forEach((cs,i)=>{if(done[i].best!=null)pool.push(...cs)});const items=shuffle(pool).slice(0,40).map(vi=>({kind:['jp2en','en2jp','type','fill','typefill'][Math.floor(Math.random()*5)],vi}));store.vl={ci:-1,items,i:0,score:0,max:0,miss:{},streak:0,big:true};render()}};
+}
+function vlRun(c){
+  const S=store.vl;const items=S.items;const course=S.big?null:VL_COURSES[S.ci];
+  if(S.i>=items.length){const pct=Math.round(100*S.score/Math.max(1,S.max));if(!S.big){const p=pg(vlId(S.ci));p.best=Math.max(p.best||0,pct);save()}if(pct>=80)sfxStreak();
+    const missed=Object.entries(S.miss).sort((a,b)=>b[1]-a[1]);
+    c.innerHTML=`<div class="pagehead"><div><h1>${S.big?'Big test':'Course '+(S.ci+1)}: done</h1><div class="sub">${S.score} of ${S.max} points</div></div></div><div class="score">${pct}%</div><p style="text-align:center">${pct>=80?(S.big?'Solid.':'Course cleared, next one unlocked.'):'Under 80. Run it again; the ones you missed are listed.'}</p>
+     ${missed.length?`<h2 style="margin-top:12px">Missed</h2><table class="ftable">${missed.map(([vi,n])=>`<tr data-say="${vlVerbName(+vi)}"><td class="fj ja">${vlVerbName(+vi)}</td><td class="fl">${toRomaji(vlVerbName(+vi))}</td><td>${esc(vlEn(+vi))}</td><td class="fl">${n}×</td></tr>`).join('')}</table>`:''}
+     <div class="row" style="margin-top:12px"><button class="btn gold" id="again">${S.big?'Another big test':'Again'}</button>${!S.big&&pct>=80&&S.ci+1<VL_COURSES.length?`<button class="btn gold" id="next">Course ${S.ci+2}</button>`:''}<button class="btn" id="back">Courses</button></div>`;
+    c.querySelector('#again').onclick=()=>{if(S.big){store.vl=null;render();document.querySelector('#bigtest').click()}else{store.vl={ci:S.ci,items:vlBuild(VL_COURSES[S.ci]),i:0,score:0,max:0,miss:{},streak:0};render()}};
+    const nx=c.querySelector('#next');if(nx)nx.onclick=()=>{store.vl={ci:S.ci+1,items:vlBuild(VL_COURSES[S.ci+1]),i:0,score:0,max:0,miss:{},streak:0};render()};
+    c.querySelector('#back').onclick=()=>{store.vl=null;render()};c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};return}
+  const it=items[S.i];const v=VERBALL[it.vi];const name=v[0];const en=v[2];
+  const head=`<div class="hint">${S.big?'Big test':'Course '+(S.ci+1)} · ${S.i+1} / ${items.length} · <b style="color:var(--gold)">${S.score} pts</b>${S.streak>=3?' · streak '+S.streak:''}</div><div class="bar"><i style="width:${Math.round(100*S.i/items.length)}%"></i></div>`;
+  const next=()=>{S.i++;render()};
+  const award=(good,pts)=>{S.max+=pts;if(good){S.score+=pts+(S.streak>=3?1:0);S.streak++;sfxOk()}else{S.streak=0;S.miss[it.vi]=(S.miss[it.vi]||0)+1;sfxBad()}mark('vl:'+name,good)};
+  const nextBtn=(row)=>{row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next <span class="keyhint">Enter</span>';nb.onclick=next;row.appendChild(nb);nb.focus()};
+  if(it.kind==='show'){const f=conj(v);const sx=vlSentence(it.vi);
+    c.innerHTML=head+`<div class="formq"><div class="hint">new verb</div><div class="v ja" data-say="${name}" style="cursor:pointer">${name}</div><div class="hint">${toRomaji(name)} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="meaning" style="font-size:26px">${esc(en)}</div></div>
+     <div class="ans"><div class="hint">in a sentence</div><div class="a ja" data-say="${sx.full.replace(/ /g,'')}" style="cursor:pointer;font-size:20px">${sx.full}</div><div class="ar">${romajiAny(sx.full)}</div><div class="ae">${esc(sx.en)}</div></div>
+     <div class="hint" style="margin-top:6px">also: <span class="ja">${f.masu}</span> (polite) · <span class="ja">${f.ta}</span> (past) · <span class="ja">${f.nai}</span> (not)</div>
+     <div class="row actions"><button class="btn gold" id="nextBtn">Got it <span class="keyhint">Enter</span></button></div>`;
+    c.querySelector('#nextBtn').onclick=next;if(canSpeak)speak(name);c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};return}
+  if(it.kind==='jp2en'||it.kind==='en2jp'){const rev=it.kind==='en2jp';const dis=vlDistract(it.vi,3,course);const opts=shuffle([it.vi,...dis]);
+    c.innerHTML=head+`<div class="formq">${rev?`<div class="meaning" style="font-size:28px">${esc(en)}</div><div class="t">which verb?</div>`:`<div class="v ja">${name}</div><div class="hint">${toRomaji(name)}</div><div class="t">what does it mean?</div>`}</div>
+     <div class="choices">${opts.map(o=>rev?`<button class="opt ja" data-r="${o}">${vlVerbName(o)}</button>`:`<button class="opt" data-r="${o}" style="font-size:16px">${esc(vlEn(o))}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
+    choiceFlow(c,opts,b=>+b.dataset.r===it.vi,good=>{award(good,1);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${name}</span> = ${esc(en)}`;if(canSpeak)speak(name);nextBtn(c.querySelector('.row.actions'))});return}
+  if(it.kind==='type'){
+    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:28px">${esc(en)}</div><div class="t">type the verb (romaji or kana)</div></div><input type="text" id="inp" autocomplete="off" autocapitalize="off" placeholder="…"><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
+    const inp=c.querySelector('#inp');inp.focus();let done=false;c.querySelector('#chk').onclick=()=>{if(done)return;const val=inp.value.trim();if(!val)return;done=true;const good=/[぀-ヿ]/.test(val)?val.replace(/\s/g,'')===name:romMatch(val,toRomaji(name));award(good,2);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${name}</span> ${toRomaji(name)} = ${esc(en)}`;if(canSpeak)speak(name);nextBtn(c.querySelector('.row.actions'))};return}
+  if(it.kind==='fill'){const sx=vlSentence(it.vi);const dis=vlDistract(it.vi,3,course).map(o=>conj(VERBALL[o])[sx.k]).filter(Boolean);const opts=shuffle([sx.form,...dis]);
+    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:20px">${esc(sx.en)}</div><div class="v ja" style="font-size:30px;margin-top:6px">${sx.jp}</div><div class="t">which verb fits?</div></div>
+     <div class="choices">${opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
+    choiceFlow(c,opts,b=>b.dataset.r===sx.form,good=>{award(good,2);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${sx.full}</span><div class="romaji">${romajiAny(sx.full)}</div>`;if(canSpeak)speak(sx.full);nextBtn(c.querySelector('.row.actions'))});return}
+  if(it.kind==='typefill'){const sx=vlSentence(it.vi);
+    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:20px">${esc(sx.en)}</div><div class="v ja" style="font-size:30px;margin-top:6px">${sx.jp}</div><div class="t">${name} → ${FORMS[sx.k][0]}: type the missing word</div></div><input type="text" id="inp" autocomplete="off" autocapitalize="off" placeholder="romaji or kana"><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
+    const inp=c.querySelector('#inp');inp.focus();let done=false;c.querySelector('#chk').onclick=()=>{if(done)return;const val=inp.value.trim();if(!val)return;done=true;const good=/[぀-ヿ]/.test(val)?val.replace(/\s/g,'')===sx.form:romMatch(val,toRomaji(sx.form));award(good,3);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${sx.full}</span><div class="romaji">${romajiAny(sx.full)}</div>`;if(canSpeak)speak(sx.full);nextBtn(c.querySelector('.row.actions'))};return}
+}
+function vlearn(m){const c=document.createElement('div');c.className='card';m.appendChild(c);if(store.vl)vlRun(c);else vlHome(c)}
 
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
