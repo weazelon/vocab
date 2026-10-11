@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v5.6</title>
+<title>Kana + Vocab Trainer v5.7</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -157,7 +157,7 @@ td.r{color:var(--ink2)}
 .step:last-child{border:0}
 .step .n{color:var(--gold);font-size:22px;min-width:28px;text-align:center}
 
-/* ---- v5.6 visual pass: ink, paper, motion (no libraries) ---- */
+/* ---- v5.7 visual pass: ink, paper, motion (no libraries) ---- */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .12 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
 @keyframes pagein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 main>*{animation:pagein .45s cubic-bezier(.2,.7,.2,1) both}
@@ -209,7 +209,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.6 · build 2026-10-10</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.7 · build 2026-10-10b</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -868,7 +868,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.6</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.7</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -2353,11 +2353,15 @@ const CALL_SUBJECTS=[
  {id:'karaoke',name:'Karaoke night',ja:'カラオケ',seed:'Choosing songs, whose turn, drinks, how long is left, anime songs.'},
  {id:'phone',name:'Phone call to book a table',ja:'よやく',seed:'You are a restaurant answering the phone. Date, time, how many people, name, allergies.'},
  {id:'free',name:'Free talk',ja:'フリー',seed:'No fixed subject. Follow whatever they bring up.'}];
-async function transcribeBlob(blob){const fd=new FormData();fd.append('file',blob,'speech.webm');fd.append('model','gpt-4o-mini-transcribe');fd.append('language','ja');fd.append('prompt','にほんご を べんきょう している がいこくじん の はなしことば。ひらがな と カタカナ だけ で かく。');
-  const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key},body:fd});if(!r.ok)throw new Error('transcribe '+r.status);let t=(await r.json()).text.trim();if(/[一-龯]/.test(t))t=await toKanaText(t);return t}
+const STT_PROMPT='こんにちは。ラーメン を たべたい です。';
+async function transcribeBlob(blob){const fd=new FormData();fd.append('file',blob,'speech.webm');fd.append('model','gpt-4o-mini-transcribe');fd.append('language','ja');fd.append('prompt',STT_PROMPT);
+  const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key},body:fd});if(!r.ok)throw new Error('transcribe '+r.status);let t=((await r.json()).text||'').trim();
+  const norm=x=>x.replace(/[\s、。？！,.?!]/g,'');if(!t||norm(t)===norm(STT_PROMPT)||norm(STT_PROMPT).includes(norm(t))&&norm(t).length>6||/はなしことば|がいこくじん|ひらがなとカタカナ/.test(t))return '';
+  if(/[一-龯]/.test(t))t=await toKanaText(t);return t}
 async function toKanaText(t){try{const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o-mini',temperature:0,max_tokens:120,messages:[{role:'system',content:'Convert this Japanese to hiragana and katakana only, with a space between words. Output only the converted text.'},{role:'user',content:t}]})});if(!r.ok)return t;return (await r.json()).choices[0].message.content.trim()}catch(e){return t}}
 let REC=null;
-async function recStart(){const stream=await navigator.mediaDevices.getUserMedia({audio:true});const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';const mr=new MediaRecorder(stream,{mimeType:mime});const chunks=[];mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.start();REC={mr,stream,chunks};}
+let REC_T0=0;
+async function recStart(){REC_T0=performance.now();const stream=await navigator.mediaDevices.getUserMedia({audio:true});const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';const mr=new MediaRecorder(stream,{mimeType:mime});const chunks=[];mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.start();REC={mr,stream,chunks};}
 function recStop(){return new Promise(res=>{if(!REC){res(null);return}const {mr,stream,chunks}=REC;REC=null;mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());res(new Blob(chunks,{type:mr.mimeType}))};mr.stop()})}
 async function llm(messages,opts){opts=opts||{};const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+VOICE.key,'Content-Type':'application/json'},body:JSON.stringify(Object.assign({model:'gpt-4o-mini',temperature:.7,max_tokens:120,messages},opts))});
   if(!r.ok){let d='';try{d=(await r.json()).error.message}catch(e){}throw new Error('OpenAI '+r.status+(d?': '+d:''))}const j=await r.json();return ((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||'').trim()}
@@ -2392,7 +2396,7 @@ function callRunAI(c){
   const askUser=()=>{act.innerHTML='';
     if(mic){const b=document.createElement('button');b.className='btn gold';b.textContent='Hold to talk';let busy=false;
       const start=async e=>{e.preventDefault();if(busy)return;busy=true;b.textContent='Listening… release to send';status.textContent='';try{await recStart()}catch(err){status.textContent='Mic blocked: '+err.message;busy=false;b.textContent='Hold to talk'}};
-      const stop=async()=>{if(!busy)return;busy=false;b.textContent='Hold to talk';const blob=await recStop();if(!blob||blob.size<2000){status.textContent='Nothing heard, try again';return}status.textContent='hearing you…';try{const t=await transcribeBlob(blob);if(!t){status.textContent='Nothing heard, try again';return}go(t)}catch(err){status.textContent='Transcription failed: '+err.message}};
+      const stop=async()=>{if(!busy)return;busy=false;b.textContent='Hold to talk';const blob=await recStop();const dur=performance.now()-REC_T0;if(!blob||blob.size<2000||dur<500){status.textContent='Nothing heard, hold the button while you speak';return}status.textContent='hearing you…';try{const t=await transcribeBlob(blob);if(!t){status.textContent='Nothing heard, try again';return}go(t)}catch(err){status.textContent='Transcription failed: '+err.message}};
       b.onpointerdown=start;b.onpointerup=stop;b.onpointerleave=stop;act.appendChild(b)}
     const inp=document.createElement('input');inp.type='text';inp.placeholder=mic?'or type (romaji or kana)':'type your answer (romaji or kana)';inp.style.cssText='font-size:18px;text-align:left;flex:1;min-width:200px';inp.onkeydown=e=>{if(e.key==='Enter'&&inp.value.trim())go(inp.value.trim())};act.appendChild(inp);if(!mic)inp.focus();
     const rep=document.createElement('button');rep.className='btn';rep.textContent='Say it again';rep.onclick=()=>{const last=[...S.log].reverse().find(l=>!l.me);if(last)speakAwait(last.jp.replace(/ /g,''))};act.appendChild(rep);
