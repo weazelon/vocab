@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v5.8</title>
+<title>Kana + Vocab Trainer v5.9.1</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -210,7 +210,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9 · build 2026-10-13</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9.1 · build 2026-10-13</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -809,6 +809,7 @@ function cloudUrl(t){ // one in-flight request per text; resolves to a blob URL
   AUDIO_PENDING.set(t,p);return p}
 function prefetchSpeech(t){if(!t)return;t=t.replace(/[ ＿]/g,'');if(!t||VOICE.provider==='none'||!VOICE.key||AUDIO_CACHE.has(t)||AUDIO_PENDING.has(t))return;cloudUrl(t).catch(()=>{})}
 let speakSeq=0;
+function stopSpeech(){speakSeq++;if(curAudio){try{curAudio.pause()}catch(e){}curAudio=null}if('speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){}}
 async function speak(t){
   t=t.replace(/[ ＿]/g,'');if(!t)return;const my=++speakSeq;
   if(VOICE.provider!=='none'&&VOICE.key){
@@ -878,7 +879,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.8</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.9.1</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -2486,7 +2487,7 @@ function vlCourse(c){const ci=store.vlc;const cs=VL_COURSES[ci];const p=PROG[vlI
 }
 function vlSayOf(it){const n=vlVerbName(it.vi);return {q:it.kind==='show'||it.kind==='jp2en'?n:(it.kind==='fill'||it.kind==='typefill')?it.sx.stem:null,a:(it.kind==='fill'||it.kind==='typefill'||it.kind==='show')?it.sx.full:n}}
 function vlRun(c){
-  const S=store.vl;const items=S.items;const course=S.big?null:VL_COURSES[S.ci];const seg=S.big?null:VL_SEGS[S.si];
+  const S=store.vl;const items=S.items;const course=S.big?null:VL_COURSES[S.ci];const seg=S.big?null:VL_SEGS[S.si];stopSpeech();
   if(S.i>=items.length){const pct=Math.round(100*S.score/Math.max(1,S.max));
     if(!S.big){const p=pg(vlId(S.ci));p.seg=p.seg||[];p.seg[S.si]=Math.max(p.seg[S.si]||0,pct);S.segScore[S.si]=pct;const last=S.si===VL_SEGS.length-1;if(last&&S.whole){const avg=Math.round(S.segScore.filter(x=>x!=null).reduce((a,b)=>a+b,0)/S.segScore.filter(x=>x!=null).length);p.best=Math.max(p.best||0,avg)}else if(last&&p.seg.filter(x=>x!=null).length===VL_SEGS.length){const avg=Math.round(p.seg.reduce((a,b)=>a+b,0)/p.seg.length);p.best=Math.max(p.best||0,avg)}save()}
     if(pct>=80)sfxStreak();
