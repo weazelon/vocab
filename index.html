@@ -89,6 +89,7 @@ button:disabled{opacity:.4;cursor:default}
 .ftable td{padding:6px 8px;border-bottom:1px solid var(--line)}
 .ftable td.fj{font-size:22px;color:var(--gold);white-space:nowrap}
 .ftable td.fl{color:var(--ink2);font-size:13px}
+.segstrip{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}.segstrip span{font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--ink2)}.segstrip span.done{border-color:var(--ok);color:var(--ok)}.segstrip span.cur{background:var(--gold);border-color:var(--gold);color:#1a1408;font-weight:600}
 .formq{text-align:center;margin:8px 0}
 .formq .v{font-size:44px;color:var(--gold)}
 .formq .t{font-size:20px;color:var(--blue);margin-top:6px}
@@ -209,7 +210,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.8 · build 2026-10-11</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9 · build 2026-10-13</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -800,10 +801,18 @@ async function fetchCloud(t){
   }
   throw new Error('no provider');
 }
+const AUDIO_PENDING=new Map();
+function cloudUrl(t){ // one in-flight request per text; resolves to a blob URL
+  const c=AUDIO_CACHE.get(t);if(c)return Promise.resolve(c);
+  let p=AUDIO_PENDING.get(t);if(p)return p;
+  p=fetchCloud(t).then(b=>{const url=URL.createObjectURL(b);AUDIO_CACHE.set(t,url);AUDIO_PENDING.delete(t);return url}).catch(e=>{AUDIO_PENDING.delete(t);throw e});
+  AUDIO_PENDING.set(t,p);return p}
+function prefetchSpeech(t){if(!t)return;t=t.replace(/[ ＿]/g,'');if(!t||VOICE.provider==='none'||!VOICE.key||AUDIO_CACHE.has(t)||AUDIO_PENDING.has(t))return;cloudUrl(t).catch(()=>{})}
+let speakSeq=0;
 async function speak(t){
-  t=t.replace(/[ ＿]/g,'');if(!t)return;
+  t=t.replace(/[ ＿]/g,'');if(!t)return;const my=++speakSeq;
   if(VOICE.provider!=='none'&&VOICE.key){
-    try{let url=AUDIO_CACHE.get(t);if(!url){const b=await fetchCloud(t);url=URL.createObjectURL(b);AUDIO_CACHE.set(t,url)}
+    try{if(curAudio){curAudio.pause()}const url=await cloudUrl(t);if(my!==speakSeq)return; // a newer speak() superseded this one
       if(curAudio){curAudio.pause()}curAudio=new Audio(url);curAudio.play();return}
     catch(e){console.warn('cloud TTS failed, falling back',e);voiceToast('Cloud voice failed: '+e.message+'. Using the browser voice. Check the key in Home > Voice.');const el=document.getElementById('ttsErr');if(el)el.textContent='Cloud voice failed ('+e.message+'), using browser voice.'}
   }
@@ -863,7 +872,7 @@ window.addEventListener('keydown',e=>{
 });
 
 /* ---------- NAV ---------- */
-document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store.mode=b.dataset.m;store.test=null;store.chat2=null;store.formMode='hub';store.lesson=null;store.vc=null;store.chat=null;store.call=null;store.vl=null;[...nav.children].forEach(x=>x.classList.toggle('on',x===b));render()});
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store.mode=b.dataset.m;store.test=null;store.chat2=null;store.formMode='hub';store.lesson=null;store.vc=null;store.chat=null;store.call=null;store.vl=null;store.vlc=null;[...nav.children].forEach(x=>x.classList.toggle('on',x===b));render()});
 function render(){const m=document.getElementById('main');m.innerHTML='';store.keyOpts=null;({home,kana,kanatype,vocab,sent,talk,chat,call,vlearn,forms,test,write,ref})[store.mode](m)}
 
 /* ---------- HOME ---------- */
@@ -2431,67 +2440,102 @@ const VL_COURSES=vlCourses();
 function vlVerbName(vi){const v=VERBALL[vi];return v[0]}
 function vlEn(vi){return VERBALL[vi][2]}
 function vlSentence(vi){const v=VERBALL[vi];const fr=v[5][Math.floor(Math.random()*3)];const f=conj(v);const ks=['dict','masu','ta','mashita','tai','teru'].filter(k=>f[k]);const k=ks[Math.floor(Math.random()*ks.length)];const [pre,enT]=enFor(v,k);
-  const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return {jp:pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。'),full:pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。'),form:f[k],k,en}}
-// item kinds: show (teach), jp2en (pick English), en2jp (pick kana), type (type romaji), fill (pick the verb that fits the sentence), typefill (type the conjugated verb into the sentence)
-function vlBuild(course){const vs=course.slice();const items=[];
-  // pass 1: teach each verb (show card), immediately followed by an easy recognition
-  shuffle(vs).forEach(vi=>{items.push({kind:'show',vi});items.push({kind:'jp2en',vi})});
-  // pass 2: recognition the other way
-  shuffle(vs).forEach(vi=>items.push({kind:'en2jp',vi}));
-  // pass 3: production: type it
-  shuffle(vs).forEach(vi=>items.push({kind:'type',vi}));
-  // pass 4: in a sentence, choose
-  shuffle(vs).forEach(vi=>items.push({kind:'fill',vi}));
-  // pass 5: in a sentence, type the form
-  shuffle(vs).forEach(vi=>items.push({kind:'typefill',vi}));
+  const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return {jp:pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。'),stem:pre+fr[0],full:pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。'),form:f[k],k,en}}
+// Segments: each course is a ladder. Every segment builds on the one before it.
+const VL_SEGS=[
+  {id:'meet',name:'Meet',ico:'会',pts:1,desc:'See each verb with a sentence, then pick its meaning right away.'},
+  {id:'recog',name:'Recognize',ico:'見',pts:1,desc:'Kana → English and English → kana, mixed. Pure recognition.'},
+  {id:'recall',name:'Recall',ico:'書',pts:2,desc:'Only the English is shown. Type the verb from memory.'},
+  {id:'sent',name:'In sentences',ico:'文',pts:2,desc:'A real sentence with the verb missing. Pick the form that fits.'},
+  {id:'produce',name:'Produce',ico:'話',pts:3,desc:'Same, but you type the conjugated verb yourself.'},
+  {id:'review',name:'Review',ico:'復',pts:2,desc:'Everything you missed in this course comes back, mixed with the rest.'}];
+function vlMk(kind,vi){const it={kind,vi};if(kind==='show'||kind==='fill'||kind==='typefill')it.sx=vlSentence(vi);return it}
+function vlBuildSeg(course,si,miss){const vs=course.slice();const items=[];const seg=VL_SEGS[si].id;
+  if(seg==='meet')shuffle(vs).forEach(vi=>{items.push(vlMk('show',vi));items.push(vlMk('jp2en',vi))});
+  else if(seg==='recog'){shuffle(vs).forEach(vi=>items.push(vlMk('jp2en',vi)));shuffle(vs).forEach(vi=>items.push(vlMk('en2jp',vi)))}
+  else if(seg==='recall')shuffle(vs).forEach(vi=>items.push(vlMk('type',vi)));
+  else if(seg==='sent')shuffle(vs).forEach(vi=>items.push(vlMk('fill',vi)));
+  else if(seg==='produce')shuffle(vs).forEach(vi=>items.push(vlMk('typefill',vi)));
+  else{ // review: missed verbs twice each in hard kinds, the rest once, 14 items max
+    const m=Object.keys(miss||{}).map(Number).filter(vi=>vs.includes(vi));const rest=shuffle(vs.filter(vi=>!m.includes(vi)));const kinds=['type','fill','typefill','en2jp'];
+    m.forEach(vi=>{items.push(vlMk('type',vi));items.push(vlMk(Math.random()<.5?'fill':'typefill',vi))});
+    rest.slice(0,Math.max(4,14-items.length)).forEach(vi=>items.push(vlMk(kinds[Math.floor(Math.random()*kinds.length)],vi)));shuffle(items)}
   return items}
 function vlDistract(vi,n,course){const pool=(course&&course.length>n+1?course:VERBALL.map((v,i)=>i)).filter(i=>i!==vi&&VERBALL[i][2]!==VERBALL[vi][2]);return shuffle(pool).slice(0,n)}
 function vlId(ci){return 'VL:'+ci}
+function vlSegBest(ci,si){const p=PROG[vlId(ci)];return p&&p.seg&&p.seg[si]!=null?p.seg[si]:null}
+function vlStart(ci,si,miss){store.vl={ci,si,items:vlBuildSeg(VL_COURSES[ci],si,miss),i:0,score:0,max:0,miss:miss||{},streak:0,segScore:[]};render()}
 function vlHome(c){
   const done=VL_COURSES.map((cs,i)=>PROG[vlId(i)]||{});const total=VL_COURSES.length;const finished=done.filter(p=>p.best!=null).length;
-  c.innerHTML=`<div class="pagehead"><div><h1>Verb memory</h1><div class="sub">${VERBALL.length} verbs in ${total} courses of ${VL_SIZE}. Each verb comes at you five ways per course; 80% unlocks the next.</div></div></div>
-   <div class="row" style="margin-bottom:10px"><button class="btn gold" id="bigtest" ${finished?'':'disabled'}>Big test: everything mixed</button><span class="hint">${finished?`${finished} of ${total} courses done`:'finish one course to unlock'}</span></div>
-   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${VL_COURSES.map((cs,i)=>{const p=done[i];const locked=i>0&&!(done[i-1].best>=80);const pct=p.best;return `<div class="kcell" data-c="${i}" style="text-align:left;padding:10px 12px;cursor:${locked?'default':'pointer'};opacity:${locked?.45:1};${pct>=80?'border-color:var(--ok)':''}"><div style="color:var(--ink)"><b>Course ${i+1}</b> <span class="hint">${locked?'locked':pct!=null?`best ${pct}%`:'new'}</span></div><div class="ja hint" style="color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cs.map(vlVerbName).join(' ')}</div></div>`}).join('')}</div>`;
-  c.onclick=e=>{const b=e.target.closest('[data-c]');if(b){const i=+b.dataset.c;const locked=i>0&&!(done[i-1].best>=80);if(locked)return;store.vl={ci:i,items:vlBuild(VL_COURSES[i]),i:0,score:0,max:0,miss:{},streak:0};render();return}
-    if(e.target.closest('#bigtest')){const pool=[];VL_COURSES.forEach((cs,i)=>{if(done[i].best!=null)pool.push(...cs)});const items=shuffle(pool).slice(0,40).map(vi=>({kind:['jp2en','en2jp','type','fill','typefill'][Math.floor(Math.random()*5)],vi}));store.vl={ci:-1,items,i:0,score:0,max:0,miss:{},streak:0,big:true};render()}};
+  c.innerHTML=`<div class="pagehead"><div><h1>Verb memory</h1><div class="sub">${VERBALL.length} verbs in ${total} courses of ${VL_SIZE}. Each course is a ladder of ${VL_SEGS.length} segments: meet → recognize → recall → sentences → produce → review. Pick any course.</div></div></div>
+   <div class="row" style="margin-bottom:10px"><button class="btn gold" id="bigtest" ${finished?'':'disabled'}>Big test: everything mixed</button><span class="hint">${finished?`${finished} of ${total} courses done`:'finish one course to unlock the big test'}</span></div>
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${VL_COURSES.map((cs,i)=>{const p=done[i];const pct=p.best;const segs=(p.seg||[]).filter(x=>x!=null).length;return `<div class="kcell" data-c="${i}" style="text-align:left;padding:10px 12px;cursor:pointer;${pct>=80?'border-color:var(--ok)':''}"><div style="color:var(--ink)"><b>Course ${i+1}</b> <span class="hint">${pct!=null?`best ${pct}%`:segs?`${segs}/${VL_SEGS.length} segments`:'new'}</span></div><div class="ja hint" style="color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cs.map(vlVerbName).join(' ')}</div></div>`}).join('')}</div>`;
+  c.onclick=e=>{const b=e.target.closest('[data-c]');if(b){store.vlc=+b.dataset.c;render();return}
+    if(e.target.closest('#bigtest')){const pool=[];VL_COURSES.forEach((cs,i)=>{if(done[i].best!=null)pool.push(...cs)});const items=shuffle(pool).slice(0,40).map(vi=>vlMk(['jp2en','en2jp','type','fill','typefill'][Math.floor(Math.random()*5)],vi));store.vl={ci:-1,si:-1,items,i:0,score:0,max:0,miss:{},streak:0,big:true};render()}};
 }
+function vlCourse(c){const ci=store.vlc;const cs=VL_COURSES[ci];const p=PROG[vlId(ci)]||{};
+  c.innerHTML=`<div class="pagehead"><button class="btn" id="back">← Courses</button><div><h1>Course ${ci+1}</h1><div class="sub">${p.best!=null?`best ${p.best}% · `:''}${cs.length} verbs. Work down the ladder; each segment is built on the one above it.</div></div></div>
+   <div class="ja" style="color:var(--gold);font-size:20px;line-height:1.8;margin-bottom:12px">${cs.map(vi=>`<span data-say="${vlVerbName(vi)}" style="cursor:pointer;margin-right:14px;white-space:nowrap">${vlVerbName(vi)} <span class="hint" style="font-size:12px">${esc(vlEn(vi))}</span></span>`).join('')}</div>
+   <div class="row" style="margin-bottom:12px"><button class="btn gold" id="whole">Run the whole ladder</button></div>
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${VL_SEGS.map((s,si)=>{const b=vlSegBest(ci,si);return `<button class="hubbtn" data-s="${si}" style="${b>=80?'border-color:var(--ok)':''}"><div class="hk">${s.ico}</div><div><b>${si+1}. ${s.name} <span class="hint" style="font-weight:400">${b!=null?b+'%':''}</span></b><span>${s.desc}</span></div></button>`}).join('')}</div>`;
+  c.querySelector('#back').onclick=()=>{store.vlc=null;render()};
+  c.querySelector('#whole').onclick=()=>{vlStart(ci,0,{});store.vl.whole=true};
+  c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak){speak(t.dataset.say);return}const s=e.target.closest('[data-s]');if(s)vlStart(ci,+s.dataset.s,{})};
+  // warm the voice for the first verbs so the first card speaks instantly
+  cs.slice(0,3).forEach(vi=>prefetchSpeech(vlVerbName(vi)));
+}
+function vlSayOf(it){const n=vlVerbName(it.vi);return {q:it.kind==='show'||it.kind==='jp2en'?n:(it.kind==='fill'||it.kind==='typefill')?it.sx.stem:null,a:(it.kind==='fill'||it.kind==='typefill'||it.kind==='show')?it.sx.full:n}}
 function vlRun(c){
-  const S=store.vl;const items=S.items;const course=S.big?null:VL_COURSES[S.ci];
-  if(S.i>=items.length){const pct=Math.round(100*S.score/Math.max(1,S.max));if(!S.big){const p=pg(vlId(S.ci));p.best=Math.max(p.best||0,pct);save()}if(pct>=80)sfxStreak();
-    const missed=Object.entries(S.miss).sort((a,b)=>b[1]-a[1]);
-    c.innerHTML=`<div class="pagehead"><div><h1>${S.big?'Big test':'Course '+(S.ci+1)}: done</h1><div class="sub">${S.score} of ${S.max} points</div></div></div><div class="score">${pct}%</div><p style="text-align:center">${pct>=80?(S.big?'Solid.':'Course cleared, next one unlocked.'):'Under 80. Run it again; the ones you missed are listed.'}</p>
-     ${missed.length?`<h2 style="margin-top:12px">Missed</h2><table class="ftable">${missed.map(([vi,n])=>`<tr data-say="${vlVerbName(+vi)}"><td class="fj ja">${vlVerbName(+vi)}</td><td class="fl">${toRomaji(vlVerbName(+vi))}</td><td>${esc(vlEn(+vi))}</td><td class="fl">${n}×</td></tr>`).join('')}</table>`:''}
-     <div class="row" style="margin-top:12px"><button class="btn gold" id="again">${S.big?'Another big test':'Again'}</button>${!S.big&&pct>=80&&S.ci+1<VL_COURSES.length?`<button class="btn gold" id="next">Course ${S.ci+2}</button>`:''}<button class="btn" id="back">Courses</button></div>`;
-    c.querySelector('#again').onclick=()=>{if(S.big){store.vl=null;render();document.querySelector('#bigtest').click()}else{store.vl={ci:S.ci,items:vlBuild(VL_COURSES[S.ci]),i:0,score:0,max:0,miss:{},streak:0};render()}};
-    const nx=c.querySelector('#next');if(nx)nx.onclick=()=>{store.vl={ci:S.ci+1,items:vlBuild(VL_COURSES[S.ci+1]),i:0,score:0,max:0,miss:{},streak:0};render()};
-    c.querySelector('#back').onclick=()=>{store.vl=null;render()};c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};return}
-  const it=items[S.i];const v=VERBALL[it.vi];const name=v[0];const en=v[2];
-  const head=`<div class="hint">${S.big?'Big test':'Course '+(S.ci+1)} · ${S.i+1} / ${items.length} · <b style="color:var(--gold)">${S.score} pts</b>${S.streak>=3?' · streak '+S.streak:''}</div><div class="bar"><i style="width:${Math.round(100*S.i/items.length)}%"></i></div>`;
+  const S=store.vl;const items=S.items;const course=S.big?null:VL_COURSES[S.ci];const seg=S.big?null:VL_SEGS[S.si];
+  if(S.i>=items.length){const pct=Math.round(100*S.score/Math.max(1,S.max));
+    if(!S.big){const p=pg(vlId(S.ci));p.seg=p.seg||[];p.seg[S.si]=Math.max(p.seg[S.si]||0,pct);S.segScore[S.si]=pct;const last=S.si===VL_SEGS.length-1;if(last&&S.whole){const avg=Math.round(S.segScore.filter(x=>x!=null).reduce((a,b)=>a+b,0)/S.segScore.filter(x=>x!=null).length);p.best=Math.max(p.best||0,avg)}else if(last&&p.seg.filter(x=>x!=null).length===VL_SEGS.length){const avg=Math.round(p.seg.reduce((a,b)=>a+b,0)/p.seg.length);p.best=Math.max(p.best||0,avg)}save()}
+    if(pct>=80)sfxStreak();
+    const missed=Object.entries(S.miss).sort((a,b)=>b[1]-a[1]);const hasNext=!S.big&&S.si+1<VL_SEGS.length;
+    c.innerHTML=`<div class="pagehead"><div><h1>${S.big?'Big test':`Course ${S.ci+1} · ${seg.name}`}: done</h1><div class="sub">${S.score} of ${S.max} points${!S.big&&S.whole?` · segment ${S.si+1} of ${VL_SEGS.length}`:''}</div></div></div><div class="score">${pct}%</div>
+     <p style="text-align:center">${pct>=80?(hasNext?`Good. Next: <b>${VL_SEGS[S.si+1].name}</b> — ${VL_SEGS[S.si+1].desc.toLowerCase()}`:S.big?'Solid.':'Ladder complete.'):'Under 80. Run this segment again before moving on; the ones you missed are listed and will come back in Review.'}</p>
+     ${missed.length?`<h2 style="margin-top:12px">Missed</h2><table class="ftable">${missed.map(([vi,n])=>`<tr data-say="${vlVerbName(+vi)}" style="cursor:pointer"><td class="fj ja">${vlVerbName(+vi)}</td><td class="fl">${toRomaji(vlVerbName(+vi))}</td><td>${esc(vlEn(+vi))}</td><td class="fl">${n}×</td></tr>`).join('')}</table>`:''}
+     <div class="row" style="margin-top:12px">${hasNext?`<button class="btn gold" id="next">Next segment: ${VL_SEGS[S.si+1].name} <span class="keyhint">Enter</span></button>`:''}<button class="btn ${hasNext?'':'gold'}" id="again">${S.big?'Another big test':'Again'}</button><button class="btn" id="back">${S.big?'Courses':'Course '+(S.ci+1)}</button></div>`;
+    const nx=c.querySelector('#next');if(nx){nx.onclick=()=>{const w=S.whole,ss=S.segScore;vlStart(S.ci,S.si+1,S.miss);store.vl.whole=w;store.vl.segScore=ss};nx.focus()}
+    c.querySelector('#again').onclick=()=>{if(S.big){store.vl=null;render();document.querySelector('#bigtest').click()}else{const w=S.whole,ss=S.segScore;vlStart(S.ci,S.si,{});store.vl.whole=w;store.vl.segScore=ss}};
+    c.querySelector('#back').onclick=()=>{store.vl=null;if(!S.big)store.vlc=S.ci;render()};c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};return}
+  const it=items[S.i];const v=VERBALL[it.vi];const name=v[0];const en=v[2];const say=vlSayOf(it);
+  // audio: say the question now, and warm up the next few items so they start instantly
+  if(canSpeak&&say.q)speak(say.q);
+  if(canSpeak){prefetchSpeech(say.a);for(let j=1;j<=3&&S.i+j<items.length;j++){const s2=vlSayOf(items[S.i+j]);if(s2.q)prefetchSpeech(s2.q);prefetchSpeech(s2.a)}}
+  const strip=S.big?'':`<div class="segstrip">${VL_SEGS.map((s,si)=>`<span class="${si===S.si?'cur':(vlSegBest(S.ci,si)>=80||(S.segScore[si]!=null&&S.segScore[si]>=80))?'done':''}">${s.name}</span>`).join('')}</div>`;
+  const head=strip+`<div class="hint">${S.big?'Big test':`Course ${S.ci+1} · ${seg.name}`} · ${S.i+1} / ${items.length} · <b style="color:var(--gold)">${S.score} pts</b>${S.streak>=3?' · streak '+S.streak:''}</div><div class="bar"><i style="width:${Math.round(100*S.i/items.length)}%"></i></div>`;
   const next=()=>{S.i++;render()};
-  const award=(good,pts)=>{S.max+=pts;if(good){S.score+=pts+(S.streak>=3?1:0);S.streak++;sfxOk()}else{S.streak=0;S.miss[it.vi]=(S.miss[it.vi]||0)+1;sfxBad()}mark('vl:'+name,good)};
-  const nextBtn=(row)=>{row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next <span class="keyhint">Enter</span>';nb.onclick=next;row.appendChild(nb);nb.focus()};
-  if(it.kind==='show'){const f=conj(v);const sx=vlSentence(it.vi);
-    c.innerHTML=head+`<div class="formq"><div class="hint">new verb</div><div class="v ja" data-say="${name}" style="cursor:pointer">${name}</div><div class="hint">${toRomaji(name)} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="meaning" style="font-size:26px">${esc(en)}</div></div>
-     <div class="ans"><div class="hint">in a sentence</div><div class="a ja" data-say="${sx.full.replace(/ /g,'')}" style="cursor:pointer;font-size:20px">${sx.full}</div><div class="ar">${romajiAny(sx.full)}</div><div class="ae">${esc(sx.en)}</div></div>
-     <div class="hint" style="margin-top:6px">also: <span class="ja">${f.masu}</span> (polite) · <span class="ja">${f.ta}</span> (past) · <span class="ja">${f.nai}</span> (not)</div>
-     <div class="row actions"><button class="btn gold" id="nextBtn">Got it <span class="keyhint">Enter</span></button></div>`;
-    c.querySelector('#nextBtn').onclick=next;if(canSpeak)speak(name);c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)};return}
+  const pts=S.big?{show:1,jp2en:1,en2jp:1,type:2,fill:2,typefill:3}[it.kind]:seg.pts;
+  const award=(good)=>{S.max+=pts;if(good){S.score+=pts+(S.streak>=3?1:0);S.streak++;sfxOk()}else{S.streak=0;S.miss[it.vi]=(S.miss[it.vi]||0)+1;sfxBad();
+      // spaced repetition: a miss comes back a few items later, once
+      if(!it.again){const re=Object.assign({},it,{again:true});if(re.sx)re.sx=vlSentence(it.vi);items.splice(Math.min(items.length,S.i+3),0,re)}}
+    mark('vl:'+name,good)};
+  const saybtn=`<button class="btn" id="say" title="Listen">🔊 Listen</button>`;
+  const nextBtn=(row)=>{row.innerHTML='';const nb=document.createElement('button');nb.className='btn gold';nb.id='nextBtn';nb.innerHTML='Next <span class="keyhint">Enter</span>';nb.onclick=next;row.appendChild(nb);row.insertAdjacentHTML('beforeend',saybtn);row.querySelector('#say').onclick=()=>speak(say.a);nb.focus()};
+  const clickSay=()=>{c.onclick=e=>{const t=e.target.closest('[data-say]');if(t&&canSpeak)speak(t.dataset.say)}};
+  const rom=(t,label)=>hintbox(`<span class="romaji">${romajiAny(t)}</span>`,label||'romaji hint');
+  if(it.kind==='show'){const f=conj(v);const sx=it.sx;
+    c.innerHTML=head+`<div class="formq"><div class="hint">new verb${it.again?' · again':''}</div><div class="v ja" data-say="${name}" style="cursor:pointer">${name}</div><div class="hint">${toRomaji(name)} <span class="reg">${GROUPLABEL[v[1]]}</span></div><div class="meaning" style="font-size:26px">${esc(en)}</div></div>
+     <div class="ans"><div class="hint">in a sentence (click to hear)</div><div class="a ja" data-say="${sx.full.replace(/ /g,'')}" style="cursor:pointer;font-size:20px">${sx.full}</div><div class="ar">${romajiAny(sx.full)}</div><div class="ae">${esc(sx.en)}</div></div>
+     <div class="hint" style="margin-top:6px">also: <span class="ja" data-say="${f.masu}" style="cursor:pointer">${f.masu}</span> (polite) · <span class="ja" data-say="${f.ta}" style="cursor:pointer">${f.ta}</span> (past) · <span class="ja" data-say="${f.nai}" style="cursor:pointer">${f.nai}</span> (not)</div>
+     <div class="row actions"><button class="btn gold" id="nextBtn">Got it <span class="keyhint">Enter</span></button><button class="btn" id="say">🔊 Sentence</button></div>`;
+    c.querySelector('#nextBtn').onclick=next;c.querySelector('#say').onclick=()=>speak(sx.full);clickSay();return}
   if(it.kind==='jp2en'||it.kind==='en2jp'){const rev=it.kind==='en2jp';const dis=vlDistract(it.vi,3,course);const opts=shuffle([it.vi,...dis]);
-    c.innerHTML=head+`<div class="formq">${rev?`<div class="meaning" style="font-size:28px">${esc(en)}</div><div class="t">which verb?</div>`:`<div class="v ja">${name}</div><div class="hint">${toRomaji(name)}</div><div class="t">what does it mean?</div>`}</div>
+    c.innerHTML=head+`<div class="formq">${rev?`<div class="meaning" style="font-size:28px">${esc(en)}</div><div class="t">which verb?</div>`:`<div class="v ja" data-say="${name}" style="cursor:pointer" title="click to hear">${name}</div>${rom(name)}<div class="t">what does it mean?</div>`}</div>
      <div class="choices">${opts.map(o=>rev?`<button class="opt ja" data-r="${o}">${vlVerbName(o)}</button>`:`<button class="opt" data-r="${o}" style="font-size:16px">${esc(vlEn(o))}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
-    choiceFlow(c,opts,b=>+b.dataset.r===it.vi,good=>{award(good,1);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${name}</span> = ${esc(en)}`;if(canSpeak)speak(name);nextBtn(c.querySelector('.row.actions'))});return}
+    clickSay();choiceFlow(c,opts,b=>+b.dataset.r===it.vi,good=>{award(good);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja" data-say="${name}" style="cursor:pointer">${name}</span> ${toRomaji(name)} = ${esc(en)}`;if(canSpeak)speak(name);nextBtn(c.querySelector('.row.actions'))});return}
   if(it.kind==='type'){
-    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:28px">${esc(en)}</div><div class="t">type the verb (romaji or kana)</div></div><input type="text" id="inp" autocomplete="off" autocapitalize="off" placeholder="…"><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
-    const inp=c.querySelector('#inp');inp.focus();let done=false;c.querySelector('#chk').onclick=()=>{if(done)return;const val=inp.value.trim();if(!val)return;done=true;const good=/[぀-ヿ]/.test(val)?val.replace(/\s/g,'')===name:romMatch(val,toRomaji(name));award(good,2);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${name}</span> ${toRomaji(name)} = ${esc(en)}`;if(canSpeak)speak(name);nextBtn(c.querySelector('.row.actions'))};return}
-  if(it.kind==='fill'){const sx=vlSentence(it.vi);const dis=vlDistract(it.vi,3,course).map(o=>conj(VERBALL[o])[sx.k]).filter(Boolean);const opts=shuffle([sx.form,...dis]);
-    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:20px">${esc(sx.en)}</div><div class="v ja" style="font-size:30px;margin-top:6px">${sx.jp}</div><div class="t">which verb fits?</div></div>
+    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:28px">${esc(en)}</div><div class="t">type the verb (romaji or kana)</div></div><input type="text" id="inp" autocomplete="off" autocapitalize="off" placeholder="…">${hintbox(`<span class="ja">${name[0]}…</span> starts with <b>${toRomaji(name)[0]}</b>`,'stuck? first letter')}<div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
+    const inp=c.querySelector('#inp');inp.focus();let done=false;clickSay();c.querySelector('#chk').onclick=()=>{if(done)return;const val=inp.value.trim();if(!val)return;done=true;const good=/[぀-ヿ]/.test(val)?val.replace(/\s/g,'')===name:romMatch(val,toRomaji(name));award(good);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja" data-say="${name}" style="cursor:pointer">${name}</span> ${toRomaji(name)} = ${esc(en)}`;if(canSpeak)speak(name);nextBtn(c.querySelector('.row.actions'))};return}
+  if(it.kind==='fill'){const sx=it.sx;const dis=vlDistract(it.vi,3,course).map(o=>conj(VERBALL[o])[sx.k]).filter(Boolean);const opts=shuffle([sx.form,...dis]);
+    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:20px">${esc(sx.en)}</div><div class="v ja" data-say="${sx.stem}" style="font-size:30px;margin-top:6px;cursor:pointer" title="click to hear">${sx.jp}</div>${rom(sx.jp)}<div class="t">which verb fits?</div></div>
      <div class="choices">${opts.map(o=>`<button class="opt ja" data-r="${o}">${o}</button>`).join('')}</div><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
-    choiceFlow(c,opts,b=>b.dataset.r===sx.form,good=>{award(good,2);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${sx.full}</span><div class="romaji">${romajiAny(sx.full)}</div>`;if(canSpeak)speak(sx.full);nextBtn(c.querySelector('.row.actions'))});return}
-  if(it.kind==='typefill'){const sx=vlSentence(it.vi);
-    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:20px">${esc(sx.en)}</div><div class="v ja" style="font-size:30px;margin-top:6px">${sx.jp}</div><div class="t">${name} → ${FORMS[sx.k][0]}: type the missing word</div></div><input type="text" id="inp" autocomplete="off" autocapitalize="off" placeholder="romaji or kana"><div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
-    const inp=c.querySelector('#inp');inp.focus();let done=false;c.querySelector('#chk').onclick=()=>{if(done)return;const val=inp.value.trim();if(!val)return;done=true;const good=/[぀-ヿ]/.test(val)?val.replace(/\s/g,'')===sx.form:romMatch(val,toRomaji(sx.form));award(good,3);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja">${sx.full}</span><div class="romaji">${romajiAny(sx.full)}</div>`;if(canSpeak)speak(sx.full);nextBtn(c.querySelector('.row.actions'))};return}
+    clickSay();choiceFlow(c,opts,b=>b.dataset.r===sx.form,good=>{award(good);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja" data-say="${sx.full}" style="cursor:pointer">${sx.full}</span><div class="romaji">${romajiAny(sx.full)}</div>`;if(canSpeak)speak(sx.full);nextBtn(c.querySelector('.row.actions'))});return}
+  if(it.kind==='typefill'){const sx=it.sx;
+    c.innerHTML=head+`<div class="formq"><div class="meaning" style="font-size:20px">${esc(sx.en)}</div><div class="v ja" data-say="${sx.stem}" style="font-size:30px;margin-top:6px;cursor:pointer" title="click to hear">${sx.jp}</div>${rom(sx.jp)}<div class="t"><span class="ja" data-say="${name}" style="cursor:pointer">${name}</span> → ${FORMS[sx.k][0]}: type the missing word</div></div><input type="text" id="inp" autocomplete="off" autocapitalize="off" placeholder="romaji or kana">${recipeBox?hintbox(recipeBox(sx.k),'how this form is built'):''}<div class="feedback" id="fb"></div><div class="row actions"><button class="btn gold" id="chk">Check <span class="keyhint">Enter</span></button></div>`;
+    const inp=c.querySelector('#inp');inp.focus();let done=false;clickSay();c.querySelector('#chk').onclick=()=>{if(done)return;const val=inp.value.trim();if(!val)return;done=true;const good=/[぀-ヿ]/.test(val)?val.replace(/\s/g,'')===sx.form:romMatch(val,toRomaji(sx.form));award(good);const fb=c.querySelector('#fb');fb.className='feedback '+(good?'ok':'bad');fb.innerHTML=`<span class="ja" data-say="${sx.full}" style="cursor:pointer">${sx.full}</span><div class="romaji">${romajiAny(sx.full)}</div>`;if(canSpeak)speak(sx.full);nextBtn(c.querySelector('.row.actions'))};return}
 }
-function vlearn(m){const c=document.createElement('div');c.className='card';m.appendChild(c);if(store.vl)vlRun(c);else vlHome(c)}
+function vlearn(m){const c=document.createElement('div');c.className='card';m.appendChild(c);if(store.vl)vlRun(c);else if(store.vlc!=null)vlCourse(c);else vlHome(c)}
 
 const GROUPLABEL={g:'u-verb (godan)',i:'ru-verb (ichidan)',s:'irregular',k:'irregular'};
 function forms(m){
