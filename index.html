@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v5.9.4</title>
+<title>Kana + Vocab Trainer v5.9.5</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -210,7 +210,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9.4 · build 2026-10-16</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9.5 · build 2026-10-16</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -879,7 +879,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.9.4</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.9.5</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -1341,7 +1341,7 @@ const VERBALL=[
 ['わすれる','i','forget','forgot','forgetting',[['かぎ を', 'the key'], ['なまえ を', 'the name'], ['かさ を', 'the umbrella']],'U'],
 ['しる','g','know','knew','knowing',[['その ひと を', 'that person'], ['この みせ を', 'this shop'], ['それ を', 'that']],'M'],
 ['おもう','g','think','thought','thinking',[['そう', 'so'], ['いい と', "it's good"], ['むり だ と', "it's impossible"]],'M'],
-['かんがえる','i','think about','thought about','thinking about',[['よてい を', 'the plan'], ['それ を', 'that'], ['しごと を', 'work']]],
+['かんがえる','i','think about','thought about','thinking about',[['よてい を', 'the plan'], ['なに を たべる か', 'what to eat'], ['つぎ の いきさき を', 'where to go next']]],
 ['つくる','g','make','made','making',[['どうが を', 'a video'], ['ごはん を', 'food'], ['ともだち を', 'friends']]],
 ['あるく','g','walk','walked','walking',[['まち を', 'around town'], ['えき まで', 'to the station'], ['いっしょ に', 'together']]],
 ['はしる','g','run','ran','running',[['えき まで', 'to the station'], ['こうえん で', 'in the park'], ['あさ', 'in the morning']]],
