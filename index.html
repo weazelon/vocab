@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kana + Vocab Trainer v5.9.1</title>
+<title>Kana + Vocab Trainer v5.9.2</title>
 <style>
 :root{
   --bg:#151a24; --panel:#1e2533; --panel2:#262f40; --line:#34405a;
@@ -210,7 +210,7 @@ button:active,.opt:active,.tile:active,.hubbtn:active,nav button:active{transfor
 <body>
 <div class="shell">
 <aside class="side">
-  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9.1 · build 2026-10-13</div></div></div>
+  <div class="brand"><div class="brandk">語</div><div><div class="brandt">Kana + Vocab</div><div class="brandv">v5.9.2 · build 2026-10-16</div></div></div>
   <nav id="nav">
     <button data-m="home" class="on"><span class="ico">家</span><span class="lbl">Home</span></button>
     <div class="navgrp">Reading</div>
@@ -879,7 +879,7 @@ function render(){const m=document.getElementById('main');m.innerHTML='';store.k
 /* ---------- HOME ---------- */
 function home(m){
   const seen=Object.keys(PROG).length;
-  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.9.1</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
+  m.innerHTML=`<div class="hero"><canvas id="heroc"></canvas><div class="stamp">読<small>v5.9.2</small></div><div class="in"><h1><span class="l"><span>Read the menu.</span></span><span class="l"><span>Skip the phrasebook.</span></span></h1><p>Kana first, then the words you will actually need, then sentences the way people say them. One file, works offline, remembers what you miss.</p><div class="row"><button class="btn gold" data-go="kana">Start with kana</button><button class="btn" data-go="forms">Verb forms</button><button class="btn" data-go="chat">Chat</button></div></div></div>
   <div class="ruler"><div><b>104</b><span>kana</span></div><div><b>${VOCAB.length}</b><span>words</span></div><div><b>${BANK.length}</b><span>sentences</span></div><div><b>${VERBALL.length}</b><span>verbs</span></div><div><b>${FORM_KEYS.length}</b><span>forms</span></div><div><b>${TOPICS.length}</b><span>conversations</span></div></div>
   <div class="card"><div class="pagehead"><div><h1>How to use it</h1><div class="sub">The order that works</div></div></div>
   <p>The method: recognize the letters first, then read real words from your trip, then build sentences out of them. Reading everywhere, writing only as reinforcement.</p>
@@ -1114,6 +1114,7 @@ function conj(v){
     const ta=te.replace(/て$/,'た').replace(/で$/,'だ');
     f={dict:d,masu:st+i+'ます',nai:d==='ある'?'ない':st+a+'ない',masen:st+i+'ません',ta,mashita:st+i+'ました',nakatta:d==='ある'?'なかった':st+a+'なかった',masendeshita:st+i+'ませんでした',te,tekudasai:te+'ください',teru:te+'る',teimasu:te+'います',teta:te+'た',teimashita:te+'いました',tai:st+i+'たい',taidesu:st+i+'たいです',takunai:st+i+'たくない',takunaidesu:st+i+'たくないです',pot:st+e+'る',potmasu:st+e+'ます',vol:st+o+'う',mashou:st+i+'ましょう',nakya:d==='ある'?'なきゃ':st+a+'なきゃ',nakereba:d==='ある'?'ないといけません':st+a+'ないといけません'}
     if(d==='ある'){delete f.teru;delete f.teimasu;delete f.teta;delete f.teimashita;delete f.tai;delete f.taidesu;delete f.takunai;delete f.takunaidesu;delete f.pot;delete f.potmasu;delete f.vol;delete f.mashou}}
+  if(d==='こまる'){delete f.tai;delete f.taidesu;delete f.takunai;delete f.takunaidesu;delete f.vol;delete f.mashou;delete f.pot;delete f.potmasu}
   if(d==='できる'){delete f.pot;delete f.potmasu;delete f.vol;delete f.mashou;delete f.tai;delete f.taidesu;delete f.takunai;delete f.takunaidesu}
   return f;
 }
@@ -1313,8 +1314,8 @@ const VERBALL=[
 ['はなす','g','speak','spoke','speaking',[['にほんご を', 'Japanese'], ['えいご を', 'English'], ['ゆっくり', 'slowly']]],
 ['かう','g','buy','bought','buying',[['フィギュア を', 'a figure'], ['きっぷ を', 'a ticket'], ['おみやげ を', 'souvenirs']]],
 ['つかう','g','use','used','using',[['カード を', 'a card'], ['スイカ を', 'Suica'], ['ワイファイ を', 'the Wi-Fi']]],
-['わかる','g','understand','understood','understanding',[['にほんご が', 'Japanese'], ['いみ が', 'the meaning'], ['それ が', 'that']]],
-['ある','g','have','had','having',[['じかん が', 'time'], ['よてい が', 'plans'], ['おかね が', 'money']]],
+['わかる','g','understand','understood','understanding',[['にほんご が', 'Japanese'], ['いみ が', 'the meaning'], ['それ が', 'that']],'M'],
+['ある','g','have','had','having',[['じかん が', 'time'], ['よてい が', 'plans'], ['おかね が', 'money']],'M'],
 ['いる','i','stay','stayed','staying',[['ホテル に', 'at the hotel'], ['えき に', 'at the station'], ['とうきょう に', 'in Tokyo']]],
 ['よむ','g','read','read','reading',[['マンガ を', 'manga'], ['メニュー を', 'the menu'], ['これ を', 'this']]],
 ['かく','g','write','wrote','writing',[['なまえ を', 'my name'], ['ライン を', 'a LINE message'], ['にほんご を', 'Japanese']]],
@@ -1331,18 +1332,18 @@ const VERBALL=[
 ['べんきょうする','s','study','studied','studying',[['にほんご を', 'Japanese'], ['かんじ を', 'kanji'], ['いえ で', 'at home']]],
 ['おぼえる','i','memorize','memorized','memorizing',[['ことば を', 'words'], ['ひらがな を', 'hiragana'], ['なまえ を', 'names']]],
 ['わすれる','i','forget','forgot','forgetting',[['かぎ を', 'the key'], ['なまえ を', 'the name'], ['かさ を', 'the umbrella']]],
-['しる','g','know','knew','knowing',[['その ひと を', 'that person'], ['この みせ を', 'this shop'], ['それ を', 'that']]],
-['おもう','g','think','thought','thinking',[['そう', 'so'], ['いい と', "it's good"], ['むり だ と', "it's impossible"]]],
+['しる','g','know','knew','knowing',[['その ひと を', 'that person'], ['この みせ を', 'this shop'], ['それ を', 'that']],'M'],
+['おもう','g','think','thought','thinking',[['そう', 'so'], ['いい と', "it's good"], ['むり だ と', "it's impossible"]],'M'],
 ['かんがえる','i','think about','thought about','thinking about',[['よてい を', 'the plan'], ['それ を', 'that'], ['しごと を', 'work']]],
 ['つくる','g','make','made','making',[['どうが を', 'a video'], ['ごはん を', 'food'], ['ともだち を', 'friends']]],
 ['あるく','g','walk','walked','walking',[['まち を', 'around town'], ['えき まで', 'to the station'], ['いっしょ に', 'together']]],
 ['はしる','g','run','ran','running',[['えき まで', 'to the station'], ['こうえん で', 'in the park'], ['こうえん で', 'in the park']]],
 ['およぐ','g','swim','swam','swimming',[['うみ で', 'in the sea'], ['プール で', 'in the pool'], ['ともだち と', 'with a friend']]],
-['のる','g','get on / ride','rode','riding',[['でんしゃ に', 'the train'], ['バス に', 'the bus'], ['タクシー に', 'a taxi']]],
+['のる','g','ride','rode','riding',[['でんしゃ に', 'the train'], ['バス に', 'the bus'], ['タクシー に', 'a taxi']]],
 ['おりる','i','get off','got off','getting off',[['でんしゃ を', 'the train'], ['つぎ で', 'at the next stop'], ['ここ で', 'here']]],
 ['のりかえる','i','transfer','transferred','transferring',[['しんじゅく で', 'at Shinjuku'], ['ちかてつ に', 'to the subway'], ['ここ で', 'here']]],
 ['とまる','g','stay overnight','stayed','staying',[['ホテル に', 'at a hotel'], ['きょうと に', 'in Kyoto'], ['ともだち の いえ に', "at a friend's"]]],
-['すむ','g','live','lived','living',[['とうきょう に', 'in Tokyo'], ['イスラエル に', 'in Israel'], ['ひとり で', 'alone']]],
+['すむ','g','live','lived','living',[['とうきょう に', 'in Tokyo'], ['イスラエル に', 'in Israel'], ['ひとり で', 'alone']],'M'],
 ['はたらく','g','work','worked','working',[['いえ で', 'from home'], ['いえ で', 'at home'], ['にほん で', 'in Japan']]],
 ['やすむ','g','rest','rested','resting',[['ここ で', 'here'], ['ホテル で', 'at the hotel'], ['ちょっと', 'a bit']]],
 ['でかける','i','go out','went out','going out',[['ひとり で', 'alone'], ['ともだち と', 'with a friend'], ['ともだち と', 'with a friend']]],
@@ -1355,30 +1356,30 @@ const VERBALL=[
 ['はらう','g','pay','paid','paying',[['カード で', 'by card'], ['げんきん で', 'in cash'], ['おかね を', 'money']]],
 ['もらう','g','get','got','getting',[['プレゼント を', 'a present'], ['レシート を', 'a receipt'], ['おみやげ を', 'a souvenir']]],
 ['あげる','i','give','gave','giving',[['プレゼント を', 'a present'], ['おみやげ を', 'a souvenir'], ['これ を', 'this']]],
-['くれる','i','give me','gave me','giving me',[['プレゼント を', 'a present'], ['ちず を', 'a map'], ['おかし を', 'snacks']]],
-['もつ','g','hold / have','held','holding',[['かさ を', 'an umbrella'], ['にもつ を', 'luggage'], ['パスポート を', 'a passport']]],
+['くれる','i','give me a present','gave me a present','giving me a present',[['ともだち が', 'my friend'], ['かのじょ が', 'my girlfriend'], ['てんいん が', 'the clerk']],'S'],
+['もつ','g','hold','held','holding',[['かさ を', 'an umbrella'], ['にもつ を', 'luggage'], ['パスポート を', 'a passport']]],
 ['もってくる','k','bring','brought','bringing',[['パスポート を', 'my passport'], ['かさ を', 'an umbrella'], ['カメラ を', 'a camera']]],
 ['もっていく','g','take along','took','taking',[['かさ を', 'an umbrella'], ['おべんとう を', 'a bento'], ['カメラ を', 'a camera']]],
 ['つれていく','g','take along','took','taking',[['ともだち を', 'a friend'], ['きみ を', 'you'], ['かのじょ を', 'my girlfriend']]],
-['おく','g','put / place','put','putting',[['かばん を', 'the bag'], ['ここ に', 'here'], ['にもつ を', 'the luggage']]],
+['おく','g','put','put','putting',[['かばん を ここ に', 'the bag here'], ['にもつ を へや に', 'the luggage in the room'], ['かぎ を つくえ に', 'the key on the desk']]],
 ['すわる','g','sit','sat','sitting',[['ここ に', 'here'], ['いす に', 'on a chair'], ['となり に', 'next to you']]],
 ['たつ','g','stand','stood','standing',[['ここ に', 'here'], ['まえ に', 'in front'], ['えき で', 'at the station']]],
 ['あける','i','open','opened','opening',[['ドア を', 'the door'], ['まど を', 'the window'], ['はこ を', 'the box']]],
 ['しめる','i','close','closed','closing',[['ドア を', 'the door'], ['まど を', 'the window'], ['みせ を', 'the shop']]],
-['つける','i','turn on / attach','turned on','turning on',[['でんき を', 'the light'], ['エアコン を', 'the AC'], ['テレビ を', 'the TV']]],
-['けす','g','turn off / erase','turned off','turning off',[['でんき を', 'the light'], ['エアコン を', 'the AC'], ['テレビ を', 'the TV']]],
+['つける','i','turn on','turned on','turning on',[['でんき を', 'the light'], ['エアコン を', 'the AC'], ['テレビ を', 'the TV']]],
+['けす','g','turn off','turned off','turning off',[['でんき を', 'the light'], ['エアコン を', 'the AC'], ['テレビ を', 'the TV']]],
 ['はじめる','i','begin','began','beginning',[['べんきょう を', 'studying'], ['しごと を', 'work'], ['れんしゅう を', 'practice']]],
 ['はじまる','g','start','started','starting',[['えいが が', 'the movie'], ['しごと が', 'work'], ['イベント が', 'the event']],'S'],
 ['おわる','g','end','ended','ending',[['しごと が', 'work'], ['えいが が', 'the movie'], ['じゅぎょう が', 'the class']],'S'],
-['やめる','i','quit / stop','quit','quitting',[['たばこ を', 'smoking'], ['しごと を', 'the job'], ['それ を', 'that']]],
+['やめる','i','quit','quit','quitting',[['たばこ を', 'smoking'], ['しごと を', 'the job'], ['それ を', 'that']]],
 ['つづける','i','continue','continued','continuing',[['べんきょう を', 'studying'], ['にほんご を', 'Japanese'], ['しごと を', 'work']]],
 ['まがる','g','turn','turned','turning',[['みぎ に', 'right'], ['ひだり に', 'left'], ['かど を', 'the corner']]],
 ['わたる','g','cross','crossed','crossing',[['みち を', 'the road'], ['はし を', 'the bridge'], ['こうさてん を', 'the intersection']]],
 ['とおる','g','pass through','passed','passing',[['ここ を', 'here'], ['しぶや を', 'Shibuya'], ['まえ を', 'the front']]],
-['すすむ','g','go forward','went forward','going forward',[['まっすぐ', 'straight'], ['まえ に', 'ahead'], ['つぎ に', 'to the next']]],
+['すすむ','g','go','went','going',[['まっすぐ', 'straight ahead'], ['まえ に', 'forward'], ['つぎ に', 'on to the next one']]],
 ['とまる','g','stop','stopped','stopping',[['でんしゃ が', 'the train'], ['バス が', 'the bus'], ['くるま が', 'the car']],'S'],
 ['とめる','i','stop','stopped','stopping',[['くるま を', 'the car'], ['おんがく を', 'the music'], ['それ を', 'that']]],
-['まよう','g','get lost / hesitate','got lost','getting lost',[['みち に', 'on the way'], ['えき で', 'at the station'], ['しんじゅく で', 'in Shinjuku']]],
+['まよう','g','get lost','got lost','getting lost',[['みち に', 'on the way'], ['えき で', 'at the station'], ['しんじゅく で', 'in Shinjuku']]],
 ['さがす','g','look for','looked for','looking for',[['えき を', 'the station'], ['ホテル を', 'a hotel'], ['さいふ を', 'my wallet']]],
 ['みつける','i','find','found','finding',[['みせ を', 'the shop'], ['さいふ を', 'my wallet'], ['いい ばしょ を', 'a good place']]],
 ['みつかる','g','turn up','turned up','turning up',[['さいふ が', 'my wallet'], ['かぎ が', 'the key'], ['みせ が', 'the shop']],'S'],
@@ -1401,12 +1402,12 @@ const VERBALL=[
 ['なく','g','cry','cried','crying',[['えいが で', 'at a movie'], ['ひとり で', 'alone'], ['うれしくて', 'from happiness']]],
 ['おこる','g','get angry','got angry','getting angry',[['それ に', 'at that'], ['ともだち に', 'at a friend'], ['すぐ', 'quickly']]],
 ['よろこぶ','g','be glad','was glad','being glad',[['プレゼント を', 'about the present'], ['それ を', 'about that'], ['とても', 'very much']]],
-['こまる','g','be in trouble','was in trouble','being in trouble',[['おかね に', 'for money'], ['みち に', 'with directions'], ['ほんと に', 'really']]],
+['こまる','g','struggle','struggled','struggling',[['おかね に', 'with money'], ['みち に', 'with directions'], ['ほんと に', 'a lot']],'M'],
 ['つかれる','i','get tired','got tired','getting tired',[['しごと で', 'from work'], ['あるいて', 'from walking'], ['ここ で', 'here']]],
 ['おどろく','g','be surprised','was surprised','being surprised',[['ねだん に', 'at the price'], ['それ に', 'at that'], ['ひと の おおさ に', 'at the crowds']]],
 ['たのしむ','g','enjoy','enjoyed','enjoying',[['たび を', 'the trip'], ['よる を', 'the night'], ['いっしょ に', 'together']]],
-['かんじる','i','feel','felt','feeling',[['それ を', 'that'], ['さむさ を', 'the cold'], ['なにか を', 'something']]],
-['しんじる','i','believe','believed','believing',[['それ を', 'that'], ['きみ を', 'you'], ['はなし を', 'the story']]],
+['かんじる','i','feel','felt','feeling',[['それ を', 'that'], ['さむさ を', 'the cold'], ['なにか を', 'something']],'M'],
+['しんじる','i','believe','believed','believing',[['それ を', 'that'], ['きみ を', 'you'], ['はなし を', 'the story']],'M'],
 ['いう','g','say','said','saying',[['なまえ を', 'my name'], ['それ を', 'that'], ['ありがとう と', 'thank you']]],
 ['はなしかける','i','strike up a conversation','struck up','striking up',[['ひと に', 'with people'], ['てんいん に', 'with the staff'], ['となり の ひと に', 'with the person next to me']]],
 ['しゃべる','g','chat','chatted','chatting',[['ともだち と', 'with friends'], ['にほんご で', 'in Japanese'], ['よる まで', 'till night']]],
@@ -1414,22 +1415,22 @@ const VERBALL=[
 ['でんわする','s','phone','phoned','phoning',[['ホテル に', 'the hotel'], ['ともだち に', 'a friend'], ['かのじょ に', 'my girlfriend']]],
 ['れんらくする','s','get in touch','got in touch','getting in touch',[['あとで', 'later'], ['ライン で', 'on LINE'], ['ともだち に', 'with a friend']]],
 ['あやまる','g','apologize','apologized','apologizing',[['ともだち に', 'to a friend'], ['てんいん に', 'to the staff'], ['ゆっくり', 'slowly']]],
-['たのむ','g','order / request','ordered','ordering',[['からあげ を', 'karaage'], ['ビール を', 'beer'], ['タクシー を', 'a taxi']]],
+['たのむ','g','order','ordered','ordering',[['からあげ を', 'karaage'], ['ビール を', 'beer'], ['タクシー を', 'a taxi']]],
 ['ちゅうもんする','s','order','ordered','ordering',[['ラーメン を', 'ramen'], ['ビール を', 'beer'], ['おなじ もの を', 'the same thing']]],
-['うける','i','receive / take','received','taking',[['しけん を', 'a test'], ['チェック を', 'a check'], ['でんわ を', 'a call']]],
+['うける','i','take','took','taking',[['しけん を', 'a test'], ['チェック を', 'a check'], ['でんわ を', 'a call']]],
 ['おくれる','i','be late','was late','being late',[['でんしゃ に', 'for the train'], ['やくそく に', 'for the plan'], ['ちょっと', 'a bit']]],
 ['まにあう','g','make it in time','made it','making it',[['しゅうでん に', 'for the last train'], ['やくそく に', 'for the plan'], ['ぎりぎり', 'just barely']]],
 ['いそぐ','g','hurry','hurried','hurrying',[['えき に', 'to the station'], ['ちょっと', 'a bit'], ['ゆっくり', 'slowly']]],
-['やる','g','do','did','doing',[['ゲーム を', 'games'], ['しごと を', 'work'], ['それ を', 'that']]],
-['できる','i','be able / be done','was able','being able',[['にほんご が', 'Japanese'], ['それ が', 'that'], ['りょうり が', 'cooking']]],
+['やる','g','do','did','doing',[['それ を', 'that'], ['しごと を', 'the work'], ['バイト を', 'a part-time job']]],
+['できる','i','can do','could do','able to do',[['にほんご が', 'Japanese'], ['それ が', 'that'], ['りょうり が', 'cooking']],'M'],
 ['がんばる','g','do my best','did','doing',[['しごと を', 'at work'], ['にほんご を', 'at Japanese'], ['ひとり で', 'alone']]],
 ['てつだう','g','help','helped','helping',[['ともだち を', 'a friend'], ['しごと を', 'with work'], ['それ を', 'with that']]],
-['たすける','i','save / help','saved','helping',[['ひと を', 'someone'], ['ともだち を', 'a friend'], ['こども を', 'a kid']]],
-['まもる','g','protect / keep','kept','keeping',[['やくそく を', 'a promise'], ['ルール を', 'the rules'], ['じかん を', 'the time']]],
+['たすける','i','help','helped','helping',[['ひと を', 'someone'], ['ともだち を', 'a friend'], ['こども を', 'a kid']]],
+['まもる','g','keep','kept','keeping',[['やくそく を', 'a promise'], ['ルール を', 'the rules'], ['じかん を', 'the time']]],
 ['おくる','g','see off','saw off','seeing off',[['かのじょ を', 'my girlfriend'], ['ともだち を', 'a friend'], ['えき まで', 'to the station']]],
-['むかえる','i','go to meet / welcome','welcomed','welcoming',[['ともだち を', 'a friend'], ['えき で', 'at the station'], ['くうこう で', 'at the airport']]],
-['あんないする','s','show around','showed around','showing around',[['まち を', 'the city'], ['ともだち を', 'a friend'], ['きょうと を', 'Kyoto']]],
-['りょこうする','s','travel','traveled','traveling',[['にほん を', 'Japan'], ['ひとり で', 'alone'], ['ひとり で', 'alone']]],
+['むかえる','i','pick up','picked up','picking up',[['ともだち を', 'a friend'], ['かのじょ を えき で', 'my girlfriend at the station'], ['ともだち を くうこう で', 'a friend at the airport']]],
+['あんないする','s','show around','showed around','showing around',[['ともだち を', 'a friend'], ['かのじょ を きょうと で', 'my girlfriend in Kyoto'], ['みんな を', 'everyone']]],
+['りょこうする','s','travel','traveled','traveling',[['にほん を', 'around Japan'], ['ひとり で', 'alone'], ['きゅうしゅう を', 'around Kyushu']]],
 ['さんぽする','s','take a walk','took a walk','taking a walk',[['こうえん を', 'in the park'], ['まち を', 'around town'], ['ひとり で', 'alone']]],
 ['やすめる','i','let rest','let rest','letting rest',[['からだ を', 'my body'], ['あたま を', 'my head'], ['め を', 'my eyes']]],
 ['ねむる','g','fall asleep','fell asleep','sleeping',[['でんしゃ で', 'on the train'], ['ゆっくり', 'slowly'], ['よく', 'well']]],
@@ -1453,14 +1454,14 @@ const VERBALL=[
 ['つづく','g','go on','went on','going on',[['あめ が', 'the rain'], ['はなし が', 'the talk'], ['イベント が', 'the event']],'S'],
 ['なれる','i','get used to','got used to','getting used to',[['にほん に', 'Japan'], ['さむさ に', 'the cold'], ['でんしゃ に', 'the trains']]],
 ['かんどうする','s','be moved','was moved','being moved',[['えいが に', 'by the movie'], ['けしき に', 'by the view'], ['やさしさ に', 'by the kindness']]],
-['きたいする','s','expect / look forward','expected','expecting',[['おいしい ごはん を', 'a good meal'], ['ゆき を', 'snow'], ['それ を', 'that']]],
+['きたいする','s','look forward to','looked forward to','looking forward to',[['おいしい ごはん を', 'a good meal'], ['ゆき を', 'snow'], ['それ を', 'that']]],
 ['しんぱいする','s','worry','worried','worrying',[['おかね を', 'about money'], ['かぞく を', 'about family'], ['しゅうでん を', 'about the last train']]],
 ['あんしんする','s','feel relieved','felt relieved','feeling relieved',[['それ で', 'at that'], ['はなし を きいて', 'hearing that'], ['ひとり で', 'alone']]],
 ['けっこんする','s','marry','married','marrying',[['かのじょ と', 'my girlfriend'], ['イスラエル で', 'in Israel'], ['にほん で', 'in Japan']]],
-['そだつ','g','grow up','grew up','growing up',[['イスラエル で', 'in Israel'], ['アニメ で', 'on anime'], ['ちいさい まち で', 'in a small town']]],
-['うまれる','i','be born','was born','being born',[['イスラエル で', 'in Israel'], ['＿＿ねん に', 'in ＿＿'], ['ふゆ に', 'in winter']]],
+['そだつ','g','grow up','grew up','growing up',[['こども が', 'the kids'], ['やさい が', 'the vegetables'], ['ねこ が', 'the cat']],'S'],
+['うまれる','i','be born','was born','being born',[['あかちゃん が', 'the baby'], ['こねこ が', 'the kittens'], ['いもうと の こども が', "my sister's kid"]],'S'],
 ['しぬ','g','die','died','dying',[['わらって', 'laughing'], ['さむさ で', 'from the cold'], ['つかれて', 'from exhaustion']]],
-['いきる','i','live','lived','living',[['たのしく', 'happily'], ['ここ で', 'here'], ['じゆう に', 'freely']]],
+['いきる','i','live','lived','living',[['たのしく', 'happily'], ['ここ で', 'here'], ['じゆう に', 'freely']],'M'],
 ['うごく','g','move','moved','moving',[['でんしゃ が', 'the train'], ['スマホ が', 'the phone'], ['からだ が', 'my body']],'S'],
 ['うごかす','g','move','moved','moving',[['にもつ を', 'the luggage'], ['いす を', 'the chair'], ['くるま を', 'the car']]],
 ['はこぶ','g','carry','carried','carrying',[['にもつ を', 'luggage'], ['スーツケース を', 'a suitcase'], ['はこ を', 'the box']]],
@@ -1470,7 +1471,7 @@ const VERBALL=[
 ['うつ','g','hit','hit','hitting',[['ボール を', 'a ball'], ['あたま を', 'my head'], ['キーボード を', 'the keyboard']]],
 ['さわる','g','touch','touched','touching',[['それ に', 'that'], ['ねこ に', 'the cat'], ['がめん に', 'the screen']]],
 ['おぼれる','i','drown','drowned','drowning',[['うみ で', 'in the sea'], ['プール で', 'in the pool'], ['しごと に', 'in work']]],
-['たすかる','g','get saved','got saved','getting saved',[['ほんと に', 'really'], ['それ で', 'by that'], ['きみ の おかげ で', 'thanks to you']]],
+['たすかる','g','help a lot','helped a lot','helping a lot',[['それ が', 'that'], ['きみ の アドバイス が', 'your advice'], ['この アプリ が', 'this app']],'S'],
 ['ふる','g','fall','fell','falling',[['あめ が', 'rain'], ['ゆき が', 'snow'], ['みぞれ が', 'sleet']],'S'],
 ['はれる','i','clear up','cleared up','clearing up',[['そら が', 'the sky'], ['てんき が', 'the weather'], ['あさ の そら が', 'the morning sky']],'S'],
 ['くもる','g','cloud over','clouded over','clouding over',[['そら が', 'the sky'], ['てんき が', 'the weather'], ['ごご の そら が', 'the afternoon sky']],'S'],
@@ -1497,13 +1498,13 @@ const VERBALL=[
 ['おこす','g','wake','woke','waking',[['かれ を', 'him'], ['ともだち を', 'my friend'], ['ともだち を', 'my friend']]],
 ['かたづける','i','tidy up','tidied','tidying',[['へや を', 'the room'], ['にもつ を', 'the luggage'], ['つくえ を', 'the desk']]],
 ['そうじする','s','clean','cleaned','cleaning',[['へや を', 'the room'], ['トイレ を', 'the toilet'], ['いえ を', 'the house']]],
-['せんたくする','s','do laundry','did laundry','doing laundry',[['ふく を', 'clothes'], ['ひとり で', 'alone'], ['コインランドリー で', 'at the laundromat']]],
+['せんたくする','s','wash','washed','washing',[['ふく を', 'clothes'], ['ひとり で', 'alone'], ['コインランドリー で', 'at the laundromat']]],
 ['りょうりする','s','cook','cooked','cooking',[['ごはん を', 'a meal'], ['カレー を', 'curry'], ['ばんごはん を', 'dinner']]],
 ['よやくする','s','reserve','reserved','reserving',[['ホテル を', 'a hotel'], ['みせ を', 'a restaurant'], ['しんかんせん を', 'the shinkansen']]],
 ['キャンセルする','s','cancel','canceled','canceling',[['よやく を', 'the reservation'], ['よてい を', 'the plan'], ['チケット を', 'the ticket']]],
 ['かくにんする','s','confirm','confirmed','confirming',[['よやく を', 'the reservation'], ['じかん を', 'the time'], ['ねだん を', 'the price']]],
 ['せつめいする','s','explain','explained','explaining',[['それ を', 'that'], ['ルール を', 'the rules'], ['いみ を', 'the meaning']]],
-['しつもんする','s','ask a question','asked','asking',[['てんいん に', 'the staff'], ['せんせい に', 'the teacher'], ['それ を', 'about that']]],
+['しつもんする','s','ask','asked','asking',[['てんいん に', 'the staff'], ['せんせい に', 'the teacher'], ['それ を', 'about that']]],
 ['そうだんする','s','consult','consulted','consulting',[['ともだち に', 'a friend'], ['かのじょ に', 'my girlfriend'], ['それ を', 'about that']]],
 ['さんかする','s','participate','participated','participating',[['イベント に', 'in the event'], ['パーティー に', 'in the party'], ['ゲーム に', 'in the game']]],
 ['けんがくする','s','visit','visited','visiting',[['こうじょう を', 'a factory'], ['スタジオ を', 'a studio'], ['おてら を', 'a temple']]],
@@ -1514,9 +1515,9 @@ const VERBALL=[
 ['ちゅうしゃする','s','park','parked','parking',[['くるま を', 'the car'], ['ここ に', 'here'], ['えき の ちかく に', 'near the station']]],
 ['しゅっぱつする','s','depart','departed','departing',[['ひとり で', 'alone'], ['ひとり で', 'alone'], ['とうきょう を', 'from Tokyo']]],
 ['とうちゃくする','s','arrive','arrived','arriving',[['くうこう に', 'at the airport'], ['ともだち と', 'with a friend'], ['ぶじ に', 'safely']]],
-['にゅうがくする','s','enter a school','entered','entering',[['だいがく に', 'university'], ['イスラエル で', 'in Israel'], ['にほん の がっこう に', 'a Japanese school']]],
-['そつぎょうする','s','graduate','graduated','graduating',[['だいがく を', 'university'], ['＿＿ねん に', 'in ＿＿'], ['ひとり で', 'alone']]],
-['けんかする','s','fight / argue','fought','fighting',[['ともだち と', 'with a friend'], ['かのじょ と', 'with my girlfriend'], ['ひとり で', 'alone']]],
+['にゅうがくする','s','enroll in','enrolled in','enrolling in',[['だいがく に', 'university'], ['イスラエル の だいがく に', 'an Israeli university'], ['にほん の がっこう に', 'a Japanese school']]],
+['そつぎょうする','s','graduate from','graduated from','graduating from',[['だいがく を', 'university'], ['こうこう を', 'high school'], ['にほんご の がっこう を', 'Japanese school']]],
+['けんかする','s','fight','fought','fighting',[['ともだち と', 'with a friend'], ['かのじょ と', 'with my girlfriend'], ['あに と', 'with my brother']]],
 ['なかなおりする','s','make up','made up','making up',[['ともだち と', 'with a friend'], ['かのじょ と', 'with my girlfriend'], ['ゆっくり', 'slowly']]],
 ['デートする','s','go on a date','dated','dating',[['かのじょ と', 'with my girlfriend'], ['しぶや で', 'in Shibuya'], ['しぶや で', 'in Shibuya']]],
 ['こくはくする','s','confess feelings','confessed','confessing',[['かのじょ に', 'to her'], ['ゆうき を だして', 'bravely'], ['ひとり で', 'alone']]],
@@ -1555,7 +1556,7 @@ function vcHome(c){
   c.querySelector('#pprev').onclick=()=>{store.vcPages[tab]--;render()};c.querySelector('#pnext').onclick=()=>{store.vcPages[tab]++;render()};
   c.onclick=e=>{const t=e.target.closest('[data-tab]');if(t){store.vcTab=+t.dataset.tab;render();return}const r=e.target.closest('tr[data-i]');if(!r)return;const vi=+r.dataset.i;const segs=vcSegsFor(VCOURSE[vi]);let si=segs.findIndex((s,j)=>!((PROG[vcId(vi,j)]||{}).best>=8));vcStart(vi,si<0?0:si)};
 }
-function vcExamples(v,k){const f=conj(v);const [pre,enT]=enFor(v,k);return v[5].map(fr=>{const jp=pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return `<div><span class="ja" data-say="${jp.replace(/ /g,'')}" style="cursor:pointer;color:var(--gold);font-size:18px">${jp}</span> <span class="hint">${romajiAny(jp)}</span><div class="hint">${wrapEn(en,v)}</div></div>`}).join('')}
+function vcExamples(v,k){const f=conj(v);return v[5].map(fr=>{const [pre,en]=enBuild(v,k,fr);const jp=pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。');return `<div><span class="ja" data-say="${jp.replace(/ /g,'')}" style="cursor:pointer;color:var(--gold);font-size:18px">${jp}</span> <span class="hint">${romajiAny(jp)}</span><div class="hint">${wrapEn(en,v)}</div></div>`}).join('')}
 function vcTeiruNote(v,k){if(k!=='teru'&&k!=='teta')return '';const x=VC_EXTRA(v);const f=conj(v);const [pre]=enFor(v,k);const fr=v[5][0];const row=(form,label)=>`<tr data-say="${(pre+fr[0]+form).replace(/ /g,'')}"><td class="fj ja" style="font-size:18px">${pre}${fr[0]} ${form}。</td><td class="fl">${romajiAny(pre+fr[0]+' '+form)}</td><td class="fl">${label}</td></tr>`;
   return k==='teru'?`<div class="note"><b>てる and ている are the same form.</b> The full form is ${f.te}いる. In speech everyone drops the い: ${f.te}る. In writing, in polite speech, and when speaking slowly the い comes back. Both are correct; てる is just the spoken version.<table class="ftable">${row(x.teiru,'full form (writing, careful speech)')}${row(f.teru,'spoken casual (what you will hear)')}${row(x.teimasu,'polite (ています)')}${row(f.te+'ます','relaxed polite (てます, い dropped)')}</table></div>`
   :`<div class="note"><b>てた is ていた with the い dropped.</b><table class="ftable">${row(x.teita,'full form')}${row(f.teta,'spoken casual')}${row(x.teimashita,'polite (ていました)')}${row(f.te+'ました','relaxed polite (てました)')}</table></div>`}
@@ -1563,7 +1564,10 @@ const VSEGS=[['plain and polite',['dict','masu']],['negative',['nai','masen']],[
 // English of the whole sentence, per form. {b}=base {p}=past {g}=-ing {x}=object
 const FORM_EN={dict:['あした ','Tomorrow I\'ll {b} {x}. (casual)'],masu:['あした ','Tomorrow I\'ll {b} {x}. (polite)'],nai:['あした は ','Tomorrow I won\'t {b} {x}. (casual)'],masen:['あした は ','Tomorrow I won\'t {b} {x}. (polite)'],ta:['きのう ','Yesterday I {p} {x}. (casual)'],mashita:['きのう ','Yesterday I {p} {x}. (polite)'],nakatta:['きのう ','Yesterday I didn\'t {b} {x}. (casual)'],masendeshita:['きのう ','Yesterday I didn\'t {b} {x}. (polite)'],te:['','{b} {x}, please. (casual, friends)'],tekudasai:['','Please {b} {x}. (polite)'],teru:['いま ','I\'m {g} {x} right now. (casual)'],teimasu:['いま ','I\'m {g} {x} right now. (polite)'],teta:['さっき ','I was {g} {x} just now. (casual)'],teimashita:['さっき ','I was {g} {x} just now. (polite)'],tai:['','I want to {b} {x}. (casual)'],taidesu:['','I want to {b} {x}. (polite)'],takunai:['','I don\'t want to {b} {x}. (casual)'],takunaidesu:['','I don\'t want to {b} {x}. (polite)'],pot:['','I can {b} {x}. (casual)'],potmasu:['','I can {b} {x}. (polite)'],vol:['いっしょ に ','Let\'s {b} {x} together. (casual)'],mashou:['いっしょ に ','Let\'s {b} {x} together. (polite)'],nakya:['もう ','I gotta {b} {x} now. (casual)'],nakereba:['もう ','I have to {b} {x} now. (polite)']};
 const FORM_EN_S={dict:['','{x} will {b}. (casual)'],masu:['','{x} will {b}. (polite)'],nai:['','{x} won\'t {b}. (casual)'],masen:['','{x} won\'t {b}. (polite)'],ta:['きのう ','Yesterday {x} {p}. (casual)'],mashita:['きのう ','Yesterday {x} {p}. (polite)'],nakatta:['きのう ','Yesterday {x} didn\'t {b}. (casual)'],masendeshita:['きのう ','Yesterday {x} didn\'t {b}. (polite)'],te:['','{x}, {b}! (casual plea)'],tekudasai:['','{x}, please {b}.'],teru:['いま ','{x} is {g} right now. (casual)'],teimasu:['いま ','{x} is {g} right now. (polite)'],teta:['さっき ','{x} was {g} just now. (casual)'],teimashita:['さっき ','{x} was {g} just now. (polite)'],tai:['','I want {x} to {b}. (casual)'],taidesu:['','I want {x} to {b}. (polite)'],takunai:['','I don\'t want {x} to {b}. (casual)'],takunaidesu:['','I don\'t want {x} to {b}. (polite)'],pot:['','Can {x} {b}? (casual)'],potmasu:['','Can {x} {b}? (polite)'],vol:['','Let {x} {b}. (casual)'],mashou:['','Let {x} {b}. (polite)'],nakya:['','{x} has to {b}. (casual)'],nakereba:['','{x} has to {b}. (polite)']};
-function enFor(v,k){return (v[6]==='S'?FORM_EN_S:FORM_EN)[k]}
+const FORM_EN_M={dict:['','I {b} {x}. (casual)'],masu:['','I {b} {x}. (polite)'],nai:['','I don\'t {b} {x}. (casual)'],masen:['','I don\'t {b} {x}. (polite)'],ta:['','I {p} {x}. (casual)'],mashita:['','I {p} {x}. (polite)'],nakatta:['','I didn\'t {b} {x}. (casual)'],masendeshita:['','I didn\'t {b} {x}. (polite)'],te:['','{g} {x}, and… (te-form links to the next clause)'],tekudasai:['','Please {b} {x}. (polite; rare with this verb)'],teru:['','I {b} {x}. (てる = the state I\'m in now, casual)'],teimasu:['','I {b} {x}. (ています = the state I\'m in now, polite)'],teta:['まえ は ','I {p} {x} before. (casual)'],teimashita:['まえ は ','I {p} {x} before. (polite)'],tai:['','I want to {b} {x}. (casual)'],taidesu:['','I want to {b} {x}. (polite)'],takunai:['','I don\'t want to {b} {x}. (casual)'],takunaidesu:['','I don\'t want to {b} {x}. (polite)'],pot:['','I can {b} {x}. (casual)'],potmasu:['','I can {b} {x}. (polite)'],vol:['','Let\'s {b} {x}. (casual)'],mashou:['','Let\'s {b} {x}. (polite)'],nakya:['','I gotta {b} {x}. (casual)'],nakereba:['','I have to {b} {x}. (polite)']};
+function enFor(v,k){return (v[6]==='S'?FORM_EN_S:v[6]==='M'?FORM_EN_M:FORM_EN)[k]}
+function enBuild(v,k,fr){const [pre,enT]=enFor(v,k);let en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ');
+  en=en.replace(/don't can do/g,"can't do").replace(/didn't can do/g,"couldn't do").replace(/(gotta|have to|has to|want to|Let's|won't|Please) can do/g,'$1 be able to do').replace(/(thought|believed|felt|knew) it's/g,'$1 it was').replace(/(thought|believed|felt|knew) I'm/g,'$1 I was').replace(' alone together',' together').replace(/^[a-z]/,c=>c.toUpperCase());return [pre,en]}
 const FORM_SUF={te:'。',tekudasai:'。',pot:'。',potmasu:'。',tai:' な。'};
 function ruleFor(v,k){const [d,g]=v;const f=conj(v)[k];const name=FORMS[k][0];
   if(g==='s'||g==='k')return `${name}: ${d} is ${d.slice(0,-2)?d.slice(0,-2)+' + '+d.slice(-2)+', and ':''}${d.slice(-2)} is irregular, just memorize it: ${d} → ${f}.`;
@@ -1577,7 +1581,7 @@ function vcItems(v,keys){const f=conj(v);const ks=(keys||Object.keys(f)).filter(
   while(items.length<10){const k=ks[i%ks.length];const fr=v[5][Math.floor(Math.random()*3)];const right=f[k];
     const sib=ks.filter(x=>x!==k&&f[x]!==right).map(x=>f[x]);const others=shuffle(Object.keys(f).filter(x=>!ks.includes(x)&&f[x]!==right)).map(x=>f[x]);
     const opts=shuffle([right,...shuffle(sib).concat(others).filter((x,j,a)=>a.indexOf(x)===j).slice(0,3)]);
-    const [pre,enT]=enFor(v,k);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());
+    const [pre,en]=enBuild(v,k,fr);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');
     items.push({k,jp,en,right,opts});i++}
   return shuffle(items)}
 function vcId(vi,si){return 'VC:'+vi+':'+VCOURSE[vi][0]+':'+si}
@@ -2149,7 +2153,7 @@ function toRomaji(s){return romajiAny(s)}
 function hintbox(inner,label){return `<details class="hintbox"><summary>${label||'show meaning'}</summary><div class="inner">${inner}</div></details>`}
 /* ---------- SET PRACTICE: one verb, five sentences, match or type the forms ---------- */
 function setBuild(v,n){const f=conj(v);const skipS=new Set(['te','tekudasai','vol','mashou','nakya','nakereba','pot','potmasu','tai','taidesu','takunai','takunaidesu']);const keys=shuffle(Object.keys(f).filter(k=>enFor(v,k)&&!(v[6]==='S'&&skipS.has(k)))).slice(0,n);
-  return keys.map(k=>{const fr=v[5][Math.floor(Math.random()*3)];const [pre,enT]=enFor(v,k);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');let en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());if(/alone together/.test(en)){en=en.replace(' alone together',' together')};return {k,jp,en,right:f[k],full:jp.replace('＿＿',f[k])}})}
+  return keys.map(k=>{const fr=v[5][Math.floor(Math.random()*3)];const [pre,en]=enBuild(v,k,fr);const jp=pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。');return {k,jp,en,right:f[k],full:jp.replace('＿＿',f[k])}})}
 function setMode(c){
   const setPool=()=>VERBALL.map((v,i)=>i).filter(i=>store.setGrp==='all'||VC_GROUP(VERBALL[i])===+store.setGrp);
   if(store.setV==null||!setPool().includes(store.setV)){const pool=setPool();store.setV=pool[Math.floor(Math.random()*pool.length)];store.setItems=null}
@@ -2440,8 +2444,8 @@ function vlCourses(){const out=[];for(let i=0;i<VERBALL.length;i+=VL_SIZE)out.pu
 const VL_COURSES=vlCourses();
 function vlVerbName(vi){const v=VERBALL[vi];return v[0]}
 function vlEn(vi){return VERBALL[vi][2]}
-function vlSentence(vi){const v=VERBALL[vi];const fr=v[5][Math.floor(Math.random()*3)];const f=conj(v);const ks=['dict','masu','ta','mashita','tai','teru'].filter(k=>f[k]);const k=ks[Math.floor(Math.random()*ks.length)];const [pre,enT]=enFor(v,k);
-  const en=enT.replace('{b}',v[2]).replace('{p}',v[3]).replace('{g}',v[4]).replace('{x}',fr[1]).replace('  ',' ').replace(/^[a-z]/,c=>c.toUpperCase());return {jp:pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。'),stem:pre+fr[0],full:pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。'),form:f[k],k,en}}
+function vlSentence(vi){const v=VERBALL[vi];const fr=v[5][Math.floor(Math.random()*3)];const f=conj(v);const ks=['dict','masu','ta','mashita','tai','teru'].filter(k=>f[k]);const k=ks[Math.floor(Math.random()*ks.length)];const [pre,en]=enBuild(v,k,fr);
+  return {jp:pre+fr[0]+' ＿＿'+(FORM_SUF[k]||'。'),stem:pre+fr[0],full:pre+fr[0]+' '+f[k]+(FORM_SUF[k]||'。'),form:f[k],k,en}}
 // Segments: each course is a ladder. Every segment builds on the one before it.
 const VL_SEGS=[
   {id:'meet',name:'Meet',ico:'会',pts:1,desc:'See each verb with a sentence, then pick its meaning right away.'},
